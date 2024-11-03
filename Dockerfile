@@ -1,5 +1,5 @@
 # Base image for building the application
-FROM gradle:8.2.0-jdk21 AS build
+FROM gradle:latest AS build
 
 # Set the working directory
 WORKDIR /app
