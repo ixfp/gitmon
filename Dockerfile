@@ -1,5 +1,5 @@
 # Base image for building the application
-FROM gradle:7.6.0-jdk21 AS build
+FROM gradle:8.2.0-jdk21 AS build
 
 # Set the working directory
 WORKDIR /app
@@ -14,7 +14,7 @@ COPY src ./src
 RUN gradle build --no-daemon
 
 # Base image for running the application
-FROM openjdk:21-jre-slim
+FROM openjdk:21
 
 # Set the working directory
 WORKDIR /app
