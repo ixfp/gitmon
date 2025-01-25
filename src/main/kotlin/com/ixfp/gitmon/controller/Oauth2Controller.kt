@@ -1,5 +1,9 @@
 package com.ixfp.gitmon.controller
 
+import com.ixfp.gitmon.client.github.GithubAccessTokenRequest
+import com.ixfp.gitmon.client.github.GithubCreateRepositoryRequest
+import com.ixfp.gitmon.client.github.GithubOauth2ApiClient
+import com.ixfp.gitmon.client.github.GithubResourceApiClient
 import com.ixfp.gitmon.controller.request.GithubOauth2Request
 import com.ixfp.gitmon.controller.response.AccessTokenResponse
 import com.ixfp.gitmon.domain.auth.AuthService
@@ -28,6 +32,7 @@ import javax.naming.AuthenticationException
 class Oauth2Controller(
     @Value("\${oauth2.client.github.id}") private val githubClientId: String,
     private val authService: AuthService,
+    private val githubResourceApiClient: GithubResourceApiClient, // 임시
 ) {
     @Operation(summary = "Get Oauth2 Token", description = "Github으로부터 Oauth2 Token을 받아오는 API")
     @ApiResponses(
@@ -65,6 +70,34 @@ class Oauth2Controller(
             }
             return ResponseEntity.status(status).build()
         }
+    }
+
+    // 임시
+    @GetMapping("/login/oauth/github/sign_up")
+    fun signUp(): ResponseEntity<Any> {
+        try {
+            val accessToken =
+                "fill this access token"
+            val request = GithubCreateRepositoryRequest(
+                name = "foo",
+                description = "bar",
+                homepage = "lorem ipsum",
+                private = false
+            )
+            githubResourceApiClient.createRepository(accessToken, request)
+            return ResponseEntity.status(HttpStatus.CREATED).build()
+        } catch (e: Exception) {
+            println(e.message)
+            log.info { "Failed to login: ${e.message}" }
+            val status =
+                when (e) {
+                    is IllegalArgumentException -> HttpStatus.BAD_REQUEST
+                    is AuthenticationException -> HttpStatus.UNAUTHORIZED
+                    else -> HttpStatus.INTERNAL_SERVER_ERROR
+                }
+            return ResponseEntity.status(status).build()
+        }
+
     }
 
     companion object {

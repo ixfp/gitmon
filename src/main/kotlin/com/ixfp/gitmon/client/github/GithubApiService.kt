@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 @Component
-class GithubApiClient(
+class GithubApiService(
     private val githubOauth2ApiClient: GithubOauth2ApiClient,
     private val githubResourceApiClient: GithubResourceApiClient,
     @Value("\${oauth2.client.github.id}") private val githubClientId: String,
@@ -13,6 +13,7 @@ class GithubApiClient(
 ) {
     fun getUserByCode(code: String): GithubUserResponse {
         val accessToken = getAccessTokenByCode(code)
+        // println(accessToken)
         return githubResourceApiClient.fetchUser(BearerToken(accessToken).format())
     }
 
@@ -24,5 +25,9 @@ class GithubApiClient(
                 client_secret = githubClientSecret,
             )
         return githubOauth2ApiClient.fetchAccessToken(request).accessToken
+    }
+
+    private fun createRepository(token: String, request: GithubCreateRepositoryRequest) {
+        githubResourceApiClient.createRepository(token, request)
     }
 }
