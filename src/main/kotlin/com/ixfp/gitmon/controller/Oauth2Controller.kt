@@ -49,7 +49,7 @@ class Oauth2Controller(
     fun redirectToGithubOauthUrl(): ResponseEntity<Unit> {
         return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).header(
             "Location",
-            "https://github.com/login/oauth/authorize?client_id=$githubClientId",
+            "https://github.com/login/oauth/authorize?&scope=repo&client_id=$githubClientId",
         ).build()
     }
 
@@ -62,6 +62,7 @@ class Oauth2Controller(
             val response = AccessTokenResponse(accessToken)
             return ResponseEntity.status(HttpStatus.CREATED).body(response)
         } catch (e: Exception) {
+            println(e)
             log.info { "Failed to login: ${e.message}" }
             val status = when (e) {
                 is IllegalArgumentException -> HttpStatus.BAD_REQUEST
@@ -81,10 +82,10 @@ class Oauth2Controller(
             val request = GithubCreateRepositoryRequest(
                 name = "foo",
                 description = "bar",
-                homepage = "lorem ipsum",
+                homepage = "http://temp.com",
                 private = false
             )
-            githubResourceApiClient.createRepository(accessToken, request)
+            githubResourceApiClient.createRepository("Bearer $accessToken", request)
             return ResponseEntity.status(HttpStatus.CREATED).build()
         } catch (e: Exception) {
             println(e.message)
@@ -97,7 +98,6 @@ class Oauth2Controller(
                 }
             return ResponseEntity.status(status).build()
         }
-
     }
 
     companion object {

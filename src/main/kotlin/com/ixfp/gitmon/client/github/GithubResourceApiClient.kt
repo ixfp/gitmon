@@ -26,5 +26,7 @@ interface GithubResourceApiClient {
     fun createRepository(
         @RequestHeader("Authorization") bearerToken: String,
         @RequestBody request: GithubCreateRepositoryRequest,
+        @RequestHeader("Accept") accept: String = "application/vnd.github+json",
+        @RequestHeader("X-GitHub-Api-Version") apiVersion: String = "2022-11-28",
     ): GithubCreateRepositoryResponse
 }
