@@ -13,7 +13,6 @@ class GithubApiService(
 ) {
     fun getUserByCode(code: String): GithubUserResponse {
         val accessToken = getAccessTokenByCode(code)
-        // println(accessToken)
         return githubResourceApiClient.fetchUser(BearerToken(accessToken).format())
     }
 
