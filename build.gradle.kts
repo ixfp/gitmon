@@ -29,6 +29,10 @@ dependencies {
     implementation("io.github.oshai:kotlin-logging-jvm:7.0.0")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
     implementation("io.jsonwebtoken:jjwt-api:0.12.5")
+
+    // swagger ui
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
     runtimeOnly("com.h2database:h2")
