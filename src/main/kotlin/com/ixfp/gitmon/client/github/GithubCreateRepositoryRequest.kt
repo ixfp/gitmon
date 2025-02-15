@@ -4,5 +4,5 @@ data class GithubCreateRepositoryRequest(
     val name: String,
     val description: String,
     val homepage: String,
-    val private: Boolean
+    val private: Boolean,
 )

@@ -26,7 +26,10 @@ class GithubApiService(
         return githubOauth2ApiClient.fetchAccessToken(request).accessToken
     }
 
-    private fun createRepository(token: String, request: GithubCreateRepositoryRequest) {
+    private fun createRepository(
+        token: String,
+        request: GithubCreateRepositoryRequest,
+    ) {
         githubResourceApiClient.createRepository(token, request)
     }
 }
