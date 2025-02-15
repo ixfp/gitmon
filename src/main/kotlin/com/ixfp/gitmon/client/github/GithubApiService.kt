@@ -11,12 +11,11 @@ class GithubApiService(
     @Value("\${oauth2.client.github.id}") private val githubClientId: String,
     @Value("\${oauth2.client.github.secret}") private val githubClientSecret: String,
 ) {
-    fun getUserByCode(code: String): GithubUserResponse {
-        val accessToken = getAccessTokenByCode(code)
-        return githubResourceApiClient.fetchUser(BearerToken(accessToken).format())
+    fun getGithubUser(githubAccessToken: String): GithubUserResponse {
+        return githubResourceApiClient.fetchUser(BearerToken(githubAccessToken).format())
     }
 
-    private fun getAccessTokenByCode(code: String): String {
+    fun getAccessTokenByCode(code: String): String {
         val request =
             GithubAccessTokenRequest(
                 code = code,

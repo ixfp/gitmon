@@ -3,7 +3,7 @@ package com.ixfp.gitmon.domain.auth
 import com.ixfp.gitmon.client.github.GithubUserResponse
 
 data class User(
-    val id: Long,
+    val id: Number,
     val name: String,
     val avatarUrl: String,
 ) {

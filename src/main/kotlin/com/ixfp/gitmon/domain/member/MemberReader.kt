@@ -12,7 +12,7 @@ class MemberReader(
         return memberRepository.findById(id).orElse(null)?.let { toMember(it) }
     }
 
-    fun findByGithubId(githubId: Int): Member? {
+    fun findByGithubId(githubId: Long): Member? {
         return memberRepository.findByGithubId(githubId)?.let { toMember(it) }
     }
 

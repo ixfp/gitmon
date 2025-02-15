@@ -9,9 +9,9 @@ import jakarta.persistence.Table
 @Table(name = "member")
 class MemberEntity(
     @Column(name = "member_id")
-    override val id: Long,
+    override val id: Long = 0,
     val exposedId: String,
-    val githubId: Int,
+    val githubId: Long,
     val githubUsername: String,
-    val repoName: String,
+    val repoName: String?,
 ) : BaseEntity(id)
