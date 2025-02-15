@@ -6,11 +6,11 @@ import com.ixfp.gitmon.domain.auth.AuthService
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -33,18 +33,22 @@ class Oauth2Controller(
     @ApiResponses(
         value = [
             ApiResponse(
-                responseCode = "200", description = "Success", content = [Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    array = ArraySchema(schema = Schema(implementation = String::class))
-                )]
+                responseCode = "200",
+                description = "Success",
+                content = [
+                    Content(
+                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                        array = ArraySchema(schema = Schema(implementation = String::class)),
+                    ),
+                ],
             ),
-        ]
+        ],
     )
     @GetMapping("/login/oauth/github")
     fun redirectToGithubOauthUrl(): ResponseEntity<Unit> {
         return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).header(
             "Location",
-            "https://github.com/login/oauth/authorize?client_id=$githubClientId",
+            "https://github.com/login/oauth/authorize?&scope=repo&client_id=$githubClientId",
         ).build()
     }
 
@@ -57,12 +61,13 @@ class Oauth2Controller(
             val response = AccessTokenResponse(accessToken)
             return ResponseEntity.status(HttpStatus.CREATED).body(response)
         } catch (e: Exception) {
-            log.info { "Failed to login: ${e.message}" }
-            val status = when (e) {
-                is IllegalArgumentException -> HttpStatus.BAD_REQUEST
-                is AuthenticationException -> HttpStatus.UNAUTHORIZED
-                else -> HttpStatus.INTERNAL_SERVER_ERROR
-            }
+            log.error(e) { "Failed to login: ${e.message}" }
+            val status =
+                when (e) {
+                    is IllegalArgumentException -> HttpStatus.BAD_REQUEST
+                    is AuthenticationException -> HttpStatus.UNAUTHORIZED
+                    else -> HttpStatus.INTERNAL_SERVER_ERROR
+                }
             return ResponseEntity.status(status).build()
         }
     }

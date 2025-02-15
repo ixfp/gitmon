@@ -14,11 +14,13 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 data class ResponseMsg(
-    val code: String, val message: String, val timestamp: String = "2025-01-01T12:00:00Z"
+    val code: String,
+    val message: String,
+    val timestamp: String = "2025-01-01T12:00:00Z",
 )
 
-@Configuration
 // TODO(KHJ): 인증 관련 처리 필요함
+@Configuration
 class SpringDocConfig {
     // SpringDoc Main Title 세팅
     @Bean
@@ -46,23 +48,33 @@ class SpringDocConfig {
         }
     }
 
-    private fun customApiResponse(opcode: String, description: String): ApiResponse {
-        val exampleMsg = ResponseMsg(
-            code = opcode,
-            message = description,
-        )
+    private fun customApiResponse(
+        opcode: String,
+        description: String,
+    ): ApiResponse {
+        val exampleMsg =
+            ResponseMsg(
+                code = opcode,
+                message = description,
+            )
 
         return ApiResponse().apply {
             this.description = description
-            this.content = Content().apply {
-                addMediaType(
-                    org.springframework.http.MediaType.APPLICATION_JSON_VALUE, MediaType().apply {
-                        addExamples("example", Example().apply {
-                            value = exampleMsg
-                        })
-                        schema = Schema<Any>()
-                    })
-            }
+            this.content =
+                Content().apply {
+                    addMediaType(
+                        org.springframework.http.MediaType.APPLICATION_JSON_VALUE,
+                        MediaType().apply {
+                            addExamples(
+                                "example",
+                                Example().apply {
+                                    value = exampleMsg
+                                },
+                            )
+                            schema = Schema<Any>()
+                        },
+                    )
+                }
         }
     }
 }
