@@ -7,9 +7,6 @@ import java.time.LocalDateTime
 
 @MappedSuperclass
 class BaseEntity(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
     @CreationTimestamp
     val createdAt: LocalDateTime = LocalDateTime.now(),
     @UpdateTimestamp
