@@ -19,7 +19,7 @@ class MemberReader(
     private fun toMember(entity: MemberEntity): Member {
         with(entity) {
             return Member(
-                id = id,
+                id = memberId,
                 exposedId = exposedId,
                 githubId = githubId,
                 githubUsername = githubUsername,
