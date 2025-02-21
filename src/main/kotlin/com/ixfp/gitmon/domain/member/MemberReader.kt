@@ -12,14 +12,14 @@ class MemberReader(
         return memberRepository.findById(id).orElse(null)?.let { toMember(it) }
     }
 
-    fun findByGithubId(githubId: Int): Member? {
+    fun findByGithubId(githubId: Long): Member? {
         return memberRepository.findByGithubId(githubId)?.let { toMember(it) }
     }
 
     private fun toMember(entity: MemberEntity): Member {
         with(entity) {
             return Member(
-                id = id,
+                id = memberId,
                 exposedId = exposedId,
                 githubId = githubId,
                 githubUsername = githubUsername,

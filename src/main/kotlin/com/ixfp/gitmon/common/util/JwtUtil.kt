@@ -12,11 +12,11 @@ class JwtUtil(
 ) {
     private val key = Keys.hmacShaKeyFor(key.toByteArray())
 
-    fun createAccessToken(username: String): String {
+    fun createAccessToken(memberExposedId: String): String {
         return Jwts.builder()
             .claims(
                 mapOf(
-                    "username" to username,
+                    "id" to memberExposedId,
                 ),
             )
             .issuedAt(Date())
