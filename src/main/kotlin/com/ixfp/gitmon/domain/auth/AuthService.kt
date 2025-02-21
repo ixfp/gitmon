@@ -7,6 +7,7 @@ import com.ixfp.gitmon.db.github.GithubAuthEntity
 import com.ixfp.gitmon.db.github.GithubAuthRepository
 import com.ixfp.gitmon.db.member.MemberEntity
 import com.ixfp.gitmon.db.member.MemberRepository
+import com.ixfp.gitmon.domain.member.Member
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -18,14 +19,13 @@ class AuthService(
     private val memberRepository: MemberRepository,
     private val githubAuthRepository: GithubAuthRepository
 ) {
-    fun isMember(githubAccessToken: String): Boolean {
-        val githubUser = githubApiService.getGithubUser(githubAccessToken)
-        val member = memberRepository.findByGithubId(githubUser.id.toLong())
-        return member != null
+    fun getMemberByGithubId(githubId: Long): MemberEntity? {
+        val member = memberRepository.findByGithubId(githubId)
+        return member
     }
 
     @Transactional
-    fun signup(githubAccessToken: String, githubUser: GithubUserResponse) {
+    fun signup(githubAccessToken: String, githubUser: GithubUserResponse): MemberEntity {
         val memberEntity = MemberEntity(
             exposedId = UUID.randomUUID().toString(),
             githubId = githubUser.id.toLong(),
@@ -34,15 +34,10 @@ class AuthService(
         val savedMember = memberRepository.save(memberEntity)
         val githubAuthEntity = GithubAuthEntity(savedMember, githubAccessToken)
         val savedGithubAuth = githubAuthRepository.save(githubAuthEntity)
+        return savedMember
     }
 
-    // TODO: 로그인
-    fun login(githubAccessToken: String, githubUser: GithubUserResponse) {
-
-    }
-
-    fun createAccessToken(code: String): String {
-        val user = User.from(githubApiService.getGithubUser(code))
-        return jwtUtil.createAccessToken(user.name)
+    fun createAccessToken(member: MemberEntity): String {
+        return jwtUtil.createAccessToken(member.exposedId)
     }
 }

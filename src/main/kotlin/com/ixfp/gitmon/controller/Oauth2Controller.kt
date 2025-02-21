@@ -1,5 +1,6 @@
 package com.ixfp.gitmon.controller
 
+import com.ixfp.gitmon.client.github.GithubApiService
 import com.ixfp.gitmon.controller.request.GithubOauth2Request
 import com.ixfp.gitmon.controller.response.AccessTokenResponse
 import com.ixfp.gitmon.domain.auth.AuthService
@@ -28,6 +29,7 @@ import javax.naming.AuthenticationException
 class Oauth2Controller(
     @Value("\${oauth2.client.github.id}") private val githubClientId: String,
     private val authService: AuthService,
+    private val githubApiService: GithubApiService,
 ) {
     @Operation(summary = "Get Oauth2 Token", description = "Github으로부터 Oauth2 Token을 받아오는 API")
     @ApiResponses(
@@ -57,8 +59,15 @@ class Oauth2Controller(
         @RequestBody request: GithubOauth2Request,
     ): ResponseEntity<AccessTokenResponse> {
         try {
-            val accessToken = authService.createAccessToken(request.code)
-            val response = AccessTokenResponse(accessToken)
+            val githubAccessToken = githubApiService.getAccessTokenByCode(request.code)
+            val githubUser = githubApiService.getGithubUser(githubAccessToken)
+            var member = authService.getMemberByGithubId(githubUser.id.toLong())
+            if (member === null) {
+                member = authService.signup(githubAccessToken, githubUser)
+            }
+            val accessToken = authService.createAccessToken(member)
+            //TODO: 레포지토리 생성여부 조회
+            val response = AccessTokenResponse(accessToken, false)
             return ResponseEntity.status(HttpStatus.CREATED).body(response)
         } catch (e: Exception) {
             log.error(e) { "Failed to login: ${e.message}" }
