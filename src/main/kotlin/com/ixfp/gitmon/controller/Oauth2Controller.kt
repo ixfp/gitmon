@@ -66,7 +66,7 @@ class Oauth2Controller(
                 member = authService.signup(githubAccessToken, githubUser)
             }
             val accessToken = authService.createAccessToken(member)
-            //TODO: 레포지토리 생성여부 조회
+            // TODO: 레포지토리 생성여부 조회
             val response = AccessTokenResponse(accessToken, false)
             return ResponseEntity.status(HttpStatus.CREATED).body(response)
         } catch (e: Exception) {
