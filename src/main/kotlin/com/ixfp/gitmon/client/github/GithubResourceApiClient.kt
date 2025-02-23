@@ -1,5 +1,8 @@
 package com.ixfp.gitmon.client.github
 
+import com.ixfp.gitmon.client.github.request.GithubCreateRepositoryRequest
+import com.ixfp.gitmon.client.github.response.GithubCreateRepositoryResponse
+import com.ixfp.gitmon.client.github.response.GithubUserResponse
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping

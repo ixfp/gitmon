@@ -1,5 +1,7 @@
 package com.ixfp.gitmon.client.github
 
+import com.ixfp.gitmon.client.github.request.GithubAccessTokenRequest
+import com.ixfp.gitmon.client.github.response.GithubAccessTokenResponse
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.PostMapping

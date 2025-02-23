@@ -1,7 +1,7 @@
 package com.ixfp.gitmon.domain.auth
 
 import com.ixfp.gitmon.client.github.GithubApiService
-import com.ixfp.gitmon.client.github.GithubUserResponse
+import com.ixfp.gitmon.client.github.response.GithubUserResponse
 import com.ixfp.gitmon.common.util.JwtUtil
 import com.ixfp.gitmon.db.github.GithubAuthEntity
 import com.ixfp.gitmon.db.github.GithubAuthRepository
