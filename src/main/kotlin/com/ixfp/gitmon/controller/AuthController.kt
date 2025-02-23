@@ -1,12 +1,16 @@
 package com.ixfp.gitmon.controller
 
-import com.ixfp.gitmon.client.github.GithubCreateRepositoryRequest
 import com.ixfp.gitmon.client.github.GithubResourceApiClient
+import com.ixfp.gitmon.client.github.request.GithubCreateRepositoryRequest
 import com.ixfp.gitmon.controller.request.CreateRepoRequest
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import javax.naming.AuthenticationException
 
 @RestController

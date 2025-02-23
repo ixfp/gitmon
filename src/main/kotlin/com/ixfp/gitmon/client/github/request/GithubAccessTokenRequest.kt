@@ -1,4 +1,4 @@
-package com.ixfp.gitmon.client.github
+package com.ixfp.gitmon.client.github.request
 
 data class GithubAccessTokenRequest(
     val client_id: String,

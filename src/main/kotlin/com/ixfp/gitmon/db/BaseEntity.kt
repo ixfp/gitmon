@@ -1,6 +1,6 @@
 package com.ixfp.gitmon.db
 
-import jakarta.persistence.*
+import jakarta.persistence.MappedSuperclass
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import java.time.LocalDateTime

@@ -1,6 +1,6 @@
 package com.ixfp.gitmon.domain.auth
 
-import com.ixfp.gitmon.client.github.GithubUserResponse
+import com.ixfp.gitmon.client.github.response.GithubUserResponse
 
 data class User(
     val id: Number,
