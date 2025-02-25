@@ -40,7 +40,26 @@ class AuthService(
         return savedMember
     }
 
+    @Transactional
+    fun login(
+        githubAccessToken: String,
+        member: MemberEntity,
+    ) {
+        githubAuthRepository.deleteByMemberId(member.memberId)
+        val githubAuthEntity = GithubAuthEntity(member, githubAccessToken)
+        val savedGithubAuth = githubAuthRepository.save(githubAuthEntity)
+    }
+
     fun createAccessToken(member: MemberEntity): String {
         return jwtUtil.createAccessToken(member.exposedId)
+    }
+
+    fun getGithubAccessToken(memberId: Long): String? {
+        // TODO: 깃허브 토큰만 조회하게 변경
+        return githubAuthRepository.findByMemberId(memberId)?.githubAccessToken
+    }
+
+    fun getMemberByExposedId(memberExposedId: String): MemberEntity? {
+        return memberRepository.findByExposedId(memberExposedId)
     }
 }

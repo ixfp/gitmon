@@ -65,6 +65,7 @@ class Oauth2Controller(
             if (member === null) {
                 member = authService.signup(githubAccessToken, githubUser)
             }
+            authService.login(githubAccessToken, member)
             val accessToken = authService.createAccessToken(member)
             // TODO: 레포지토리 생성여부 조회
             val response = AccessTokenResponse(accessToken, false)
