@@ -35,7 +35,7 @@ class Oauth2Controller(
     @ApiResponses(
         value = [
             ApiResponse(
-                responseCode = "200",
+                responseCode = "301",
                 description = "Success",
                 content = [
                     Content(
@@ -54,6 +54,36 @@ class Oauth2Controller(
         ).build()
     }
 
+    @Operation(
+        summary = "gitmon Access 토큰 발급",
+        description = "Github OAuth 인증 코드를 받아 로그인 처리 후 gitmon의 Access Token을 발급 받음.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "201",
+                description = "로그인 및 토큰 발급 성공",
+                content = [
+                    Content(
+                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                        schema = Schema(implementation = AccessTokenResponse::class),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "잘못된 요청 (code가 유효하지 않은 경우 등)",
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "인증 실패",
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "서버 에러",
+            ),
+        ],
+    )
     @PostMapping("/login/oauth/github/tokens")
     fun login(
         @RequestBody request: GithubOauth2Request,

@@ -5,6 +5,10 @@ import com.ixfp.gitmon.controller.request.CreateRepoRequest
 import com.ixfp.gitmon.domain.auth.AuthService
 import com.ixfp.gitmon.domain.member.MemberService
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PutMapping
@@ -16,12 +20,36 @@ import javax.naming.AuthenticationException
 
 @RequestMapping("/api/v1/member")
 @RestController()
+@Tag(name = "Member", description = "회원 관련 API")
 class MemberController(
     private val jwtUtil: JwtUtil,
     private val authService: AuthService,
     private val memberService: MemberService,
 ) {
-    // 이미 설정된 레포지토리가 있다면 갱신하고, 없다면 생성한다.
+    @Operation(
+        summary = "레포지토리 생성/갱신",
+        description = "이미 설정된 레포지토리가 있다면 갱신하고, 없다면 새로 생성합니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "201",
+                description = "레포 생성/갱신 성공",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "잘못된 요청 (예: 파라미터 오류 등)",
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "인증 실패 (엑세스 토큰 문제)",
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "서버 내부 오류",
+            ),
+        ],
+    )
     @PutMapping("/repo")
     fun upsertRepo(
         @RequestBody request: CreateRepoRequest,
