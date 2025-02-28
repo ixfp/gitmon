@@ -2,19 +2,17 @@ package com.ixfp.gitmon.domain.member
 
 import com.ixfp.gitmon.client.github.GithubResourceApiClient
 import com.ixfp.gitmon.client.github.request.GithubCreateRepositoryRequest
-import com.ixfp.gitmon.db.member.MemberEntity
-import com.ixfp.gitmon.db.member.MemberRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
 @Service
 class MemberService(
     private val githubResourceApiClient: GithubResourceApiClient,
-    private val memberRepository: MemberRepository,
+    private val memberWriter: MemberWriter,
 ) {
     @Transactional()
     fun upsertRepo(
-        member: MemberEntity,
+        member: Member,
         repoName: String,
         githubAccessToken: String,
     ) {
@@ -27,6 +25,6 @@ class MemberService(
             )
         // TODO: DB 레포지토리 업데이트 오류 시 생성된 레포지토리를 지워야 함
         githubResourceApiClient.createRepository("Bearer $githubAccessToken", githubRequest)
-        memberRepository.updateRepoNameByMemberId(member.memberId, repoName)
+        memberWriter.upsertRepo(member, repoName)
     }
 }

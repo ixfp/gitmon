@@ -1,6 +1,7 @@
 package com.ixfp.gitmon.db.member
 
 import com.ixfp.gitmon.db.BaseEntity
+import com.ixfp.gitmon.domain.member.Member
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -23,4 +24,18 @@ class MemberEntity(
     val githubUsername: String,
     @Column(name = "repo_name")
     val repoName: String? = null,
-) : BaseEntity()
+) : BaseEntity() {
+    companion object {
+        fun toMember(entity: MemberEntity): Member {
+            with(entity) {
+                return Member(
+                    id = memberId,
+                    exposedId = exposedId,
+                    githubId = githubId,
+                    githubUsername = githubUsername,
+                    repoName = repoName,
+                )
+            }
+        }
+    }
+}

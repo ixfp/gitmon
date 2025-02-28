@@ -38,7 +38,7 @@ class MemberController(
             if (member === null) {
                 throw Error("토큰에 해당하는 사용자를 찾을 수 없음")
             }
-            val githubAccessToken = authService.getGithubAccessToken(member.memberId)
+            val githubAccessToken = authService.getGithubAccessToken(member.id)
             if (githubAccessToken === null) {
                 throw Error("사용자의 깃허브 토큰을 찾을 수 없음")
             }
