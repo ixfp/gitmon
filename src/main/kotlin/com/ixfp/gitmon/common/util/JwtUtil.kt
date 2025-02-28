@@ -25,7 +25,26 @@ class JwtUtil(
             .compact()
     }
 
+    fun parseAccessToken(token: String): AccessTokenPayload? {
+        return try {
+            val jws =
+                Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token)
+            val claims = jws.body
+            val exposedId = claims["id"] as? String ?: return null
+            AccessTokenPayload(exposedId)
+        } catch (e: Exception) {
+            return null
+        }
+    }
+
     companion object {
         private const val TOKEN_EXPIRE_MILLISECONDS = 1000 * 60 * 60 * 10 // 10시간
     }
 }
+
+data class AccessTokenPayload(
+    val exposedId: String,
+)

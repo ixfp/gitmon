@@ -22,7 +22,7 @@ class GithubAuthEntity(
     @JoinColumn(name = "member_id", referencedColumnName = "member_id")
     val member: MemberEntity,
     @Column(name = "github_access_token", nullable = false)
-    val githubAccessToken: String,
+    var githubAccessToken: String,
 ) : BaseEntity() {
     constructor(member: MemberEntity, githubAccessToken: String) : this(
         memberId = null,
