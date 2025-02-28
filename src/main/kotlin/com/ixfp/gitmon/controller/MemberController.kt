@@ -31,15 +31,15 @@ class MemberController(
             // TODO: 엑세스토큰으로 id 혹은 member 객체로 변환하는 필터 만들기
             val accessToken = authorizationHeader.removePrefix("Bearer ")
             val memberExposedId = jwtUtil.parseAccessToken(accessToken)?.exposedId
-            if (memberExposedId === null) {
+            if (memberExposedId == null) {
                 throw AuthenticationException("유효하지 않은 사용자 토큰")
             }
             val member = authService.getMemberByExposedId(memberExposedId)
-            if (member === null) {
+            if (member == null) {
                 throw Error("토큰에 해당하는 사용자를 찾을 수 없음")
             }
             val githubAccessToken = authService.getGithubAccessToken(member.id)
-            if (githubAccessToken === null) {
+            if (githubAccessToken == null) {
                 throw Error("사용자의 깃허브 토큰을 찾을 수 없음")
             }
             memberService.upsertRepo(member, request.name, githubAccessToken)

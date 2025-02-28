@@ -62,7 +62,7 @@ class Oauth2Controller(
             val githubAccessToken = githubApiService.getAccessTokenByCode(request.code)
             val githubUser = githubApiService.getGithubUser(githubAccessToken)
             var member = authService.getMemberByGithubId(githubUser.id.toLong())
-            if (member === null) {
+            if (member == null) {
                 member = authService.signup(githubAccessToken, githubUser)
             }
             authService.login(githubAccessToken, member)
