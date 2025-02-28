@@ -31,15 +31,17 @@ class MemberWriter(
         githubAccessToken: String,
     ) {
         val memberEntity =
-            MemberEntity(
-                memberId = member.id,
-                exposedId = member.exposedId,
-                githubId = member.githubId,
-                githubUsername = member.githubUsername,
-                repoName = member.repoName,
-            )
-        val githubAuthEntity = GithubAuthEntity(memberEntity, githubAccessToken)
-        githubAuthRepository.save(githubAuthEntity)
+            memberRepository.findById(member.id)
+                .orElseThrow { Error("회원을 찾을 수 없음") }
+        val existingGithubAuth = githubAuthRepository.findByMemberId(memberEntity.memberId)
+
+        if (existingGithubAuth != null) {
+            existingGithubAuth.githubAccessToken = githubAccessToken
+            githubAuthRepository.save(existingGithubAuth)
+        } else {
+            val githubAuthEntity = GithubAuthEntity(memberEntity, githubAccessToken)
+            githubAuthRepository.save(githubAuthEntity)
+        }
     }
 
     fun upsertRepo(
