@@ -62,7 +62,3 @@ allOpen {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
-
-tasks.withType<Jar> {
-    archiveBaseName.set("app")
-}
