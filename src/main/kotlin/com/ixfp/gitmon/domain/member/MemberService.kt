@@ -2,7 +2,6 @@ package com.ixfp.gitmon.domain.member
 
 import com.ixfp.gitmon.client.github.GithubResourceApiClient
 import com.ixfp.gitmon.client.github.request.GithubCreateRepositoryRequest
-import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
 @Service
@@ -10,7 +9,6 @@ class MemberService(
     private val githubResourceApiClient: GithubResourceApiClient,
     private val memberWriter: MemberWriter,
 ) {
-    @Transactional()
     fun upsertRepo(
         member: Member,
         repoName: String,
