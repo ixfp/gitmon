@@ -23,7 +23,7 @@ class MemberEntity(
     @Column(name = "github_username")
     val githubUsername: String,
     @Column(name = "repo_name")
-    val repoName: String? = null,
+    var repoName: String? = null,
 ) : BaseEntity() {
     companion object {
         fun toMember(entity: MemberEntity): Member {
