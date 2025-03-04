@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
@@ -37,6 +37,10 @@ class MemberController(
                 description = "레포 생성/갱신 성공",
             ),
             ApiResponse(
+                responseCode = "200",
+                description = "레포지토리 이름이 설정된 사용자 레포 이름과 동일함",
+            ),
+            ApiResponse(
                 responseCode = "400",
                 description = "잘못된 요청 (예: 파라미터 오류 등)",
             ),
@@ -50,7 +54,7 @@ class MemberController(
             ),
         ],
     )
-    @PutMapping("/repo")
+    @PostMapping("/repo")
     fun upsertRepo(
         @RequestBody request: CreateRepoRequest,
         @RequestHeader("Authorization") authorizationHeader: String,
@@ -69,6 +73,9 @@ class MemberController(
             val githubAccessToken = authService.getGithubAccessToken(member.id)
             if (githubAccessToken == null) {
                 throw Error("사용자의 깃허브 토큰을 찾을 수 없음")
+            }
+            if (member.repoName == request.name) {
+                return ResponseEntity(HttpStatus.OK)
             }
             memberService.upsertRepo(member, request.name, githubAccessToken)
             return ResponseEntity.status(HttpStatus.CREATED).build()
