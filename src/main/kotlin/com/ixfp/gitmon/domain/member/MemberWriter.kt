@@ -27,6 +27,7 @@ class MemberWriter(
         return MemberEntity.toMember(savedMemberEntity)
     }
 
+    @Transactional
     fun upsertGithubAccessToken(
         member: Member,
         githubAccessToken: String,
