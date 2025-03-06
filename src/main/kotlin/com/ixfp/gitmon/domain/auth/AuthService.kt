@@ -44,7 +44,7 @@ class AuthService(
     }
 
     fun getGithubAccessToken(memberId: Long): String? {
-        return memberReader.findAccessTokenByGithubId(memberId)
+        return memberReader.findAccessTokenByMemberId(memberId)
     }
 
     fun getMemberByExposedId(memberExposedId: String): Member? {
