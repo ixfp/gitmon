@@ -4,6 +4,7 @@ import com.ixfp.gitmon.db.github.GithubAuthEntity
 import com.ixfp.gitmon.db.github.GithubAuthRepository
 import com.ixfp.gitmon.db.member.MemberEntity
 import com.ixfp.gitmon.db.member.MemberRepository
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Component
 
 @Component
@@ -26,6 +27,7 @@ class MemberWriter(
         return MemberEntity.toMember(savedMemberEntity)
     }
 
+    @Transactional
     fun upsertGithubAccessToken(
         member: Member,
         githubAccessToken: String,
@@ -44,10 +46,13 @@ class MemberWriter(
         }
     }
 
+    @Transactional
     fun upsertRepo(
         member: Member,
         repoName: String,
     ) {
-        memberRepository.updateRepoNameByMemberId(member.id, repoName)
+        memberRepository.findById(member.id)
+            .orElseThrow { Error("회원을 찾을 수 없음") }
+            .apply { this.repoName = repoName }
     }
 }

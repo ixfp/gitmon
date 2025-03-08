@@ -24,7 +24,7 @@ class MemberReader(
         return memberRepository.findByGithubId(githubId)?.let { MemberEntity.toMember(it) }
     }
 
-    fun findAccessTokenByGithubId(memberId: Long): String? {
+    fun findAccessTokenByMemberId(memberId: Long): String? {
         // TODO: 깃허브 토큰만 조회하게 변경
         return githubAuthRepository.findByMemberId(memberId)?.githubAccessToken
     }
