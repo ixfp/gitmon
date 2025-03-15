@@ -1,0 +1,12 @@
+### 사용자 repo 생성
+POST http://localhost:8080/api/v1/member/repo
+Content-Type: application/json
+Authorization: Bearer jwt
+
+{
+  "name": "gitmon"
+}
+
+### 사용자 repo 이름 중복 확인
+GET http://localhost:8080/api/v1/member/repo/check?name=gitmon
+Authorization: Bearer jwt
