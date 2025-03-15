@@ -1,8 +1,9 @@
 package com.ixfp.gitmon.controller
 
-import com.ixfp.gitmon.common.util.JwtUtil
+import com.ixfp.gitmon.common.const.AUTHENTICATED_MEMBER
 import com.ixfp.gitmon.controller.request.CreateRepoRequest
 import com.ixfp.gitmon.domain.auth.AuthService
+import com.ixfp.gitmon.domain.member.Member
 import com.ixfp.gitmon.domain.member.MemberService
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import io.swagger.v3.oas.annotations.Operation
@@ -13,8 +14,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestAttribute
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -24,7 +25,6 @@ import javax.naming.AuthenticationException
 @RestController()
 @Tag(name = "Member", description = "회원 관련 API")
 class MemberController(
-    private val jwtUtil: JwtUtil,
     private val authService: AuthService,
     private val memberService: MemberService,
 ) {
@@ -59,23 +59,13 @@ class MemberController(
     @PostMapping("/repo")
     fun upsertRepo(
         @RequestBody request: CreateRepoRequest,
-        @RequestHeader("Authorization") authorizationHeader: String,
+        @RequestAttribute(AUTHENTICATED_MEMBER) member: Member,
     ): ResponseEntity<HttpStatus> {
         try {
-            // TODO: 엑세스토큰으로 id 혹은 member 객체로 변환하는 필터 만들기
-            val accessToken = authorizationHeader.removePrefix("Bearer ")
-            val memberExposedId = jwtUtil.parseAccessToken(accessToken)?.exposedId
-            if (memberExposedId == null) {
-                throw AuthenticationException("유효하지 않은 사용자 토큰")
-            }
-            val member = authService.getMemberByExposedId(memberExposedId)
-            if (member == null) {
-                throw Error("토큰에 해당하는 사용자를 찾을 수 없음")
-            }
-            val githubAccessToken = authService.getGithubAccessToken(member.id)
-            if (githubAccessToken == null) {
-                throw Error("사용자의 깃허브 토큰을 찾을 수 없음")
-            }
+            val githubAccessToken =
+                authService.getGithubAccessToken(member.id)
+                    ?: throw AuthenticationException("사용자의 깃허브 토큰을 찾을 수 없음")
+
             if (member.repoName == request.name) {
                 return ResponseEntity(HttpStatus.OK)
             }
@@ -109,16 +99,9 @@ class MemberController(
     @GetMapping("/repo/check")
     fun checkRepoName(
         @RequestParam name: String,
-        @RequestHeader("Authorization") authorizationHeader: String,
+        @RequestAttribute(AUTHENTICATED_MEMBER) member: Member,
     ): ResponseEntity<Unit> {
         return try {
-            val accessToken = authorizationHeader.removePrefix("Bearer ")
-            val memberExposedId =
-                jwtUtil.parseAccessToken(accessToken)?.exposedId
-                    ?: throw AuthenticationException("유효하지 않은 사용자 토큰")
-            val member =
-                authService.getMemberByExposedId(memberExposedId)
-                    ?: throw Error("토큰에 해당하는 사용자를 찾을 수 없음")
             val isAvailable = memberService.isRepoNameAvailable(member, name)
             if (!isAvailable) {
                 ResponseEntity.status(HttpStatus.CONFLICT).build()
