@@ -38,6 +38,23 @@ class MemberService(
         return true
     }
 
+    fun findGithubRepoUrl(githubUsername: String): String? {
+        val member = memberReader.findByGithubUsername(githubUsername) ?: return null
+
+        if (member.repoName == null) {
+            return null
+        }
+
+        return buildGithubRepoUrl(member.githubUsername, member.repoName)
+    }
+
+    private fun buildGithubRepoUrl(
+        githubUsername: String,
+        repoName: String,
+    ): String {
+        return "https://github.com/$githubUsername/$repoName"
+    }
+
     private fun isRepoNameDuplicate(
         member: Member,
         repoName: String,

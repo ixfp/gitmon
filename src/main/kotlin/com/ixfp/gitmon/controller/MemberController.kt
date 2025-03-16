@@ -2,6 +2,7 @@ package com.ixfp.gitmon.controller
 
 import com.ixfp.gitmon.common.const.AUTHENTICATED_MEMBER
 import com.ixfp.gitmon.controller.request.CreateRepoRequest
+import com.ixfp.gitmon.controller.response.GithubRepoUrlResponse
 import com.ixfp.gitmon.domain.auth.AuthService
 import com.ixfp.gitmon.domain.member.Member
 import com.ixfp.gitmon.domain.member.MemberService
@@ -118,6 +119,25 @@ class MemberController(
                 }
             ResponseEntity.status(status).build()
         }
+    }
+
+    @Operation(summary = "레포지토리 URL 조회")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "404", description = "레포지토리 URL 찾을 수 없음"),
+        ],
+    )
+    @GetMapping("/github/repo")
+    fun findGithubRepoUrl(
+        @RequestParam githubUsername: String,
+    ): ResponseEntity<GithubRepoUrlResponse> {
+        val githubRepoUrl =
+            memberService.findGithubRepoUrl(githubUsername)
+                ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+
+        val response = GithubRepoUrlResponse(githubRepoUrl)
+
+        return ResponseEntity.status(HttpStatus.OK).body(response)
     }
 
     companion object {

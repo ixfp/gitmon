@@ -10,7 +10,7 @@ interface MemberRepository : JpaRepository<MemberEntity, Long> {
 
     fun findByGithubId(githubId: Long): MemberEntity?
 
-    fun findByGithubUsername(githubUsername: String): List<MemberEntity>
+    fun findByGithubUsername(githubUsername: String): MemberEntity?
 
     fun findByExposedId(exposedId: String): MemberEntity?
 }
