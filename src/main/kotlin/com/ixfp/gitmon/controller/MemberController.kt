@@ -1,6 +1,7 @@
 package com.ixfp.gitmon.controller
 
 import com.ixfp.gitmon.common.const.AUTHENTICATED_MEMBER
+import com.ixfp.gitmon.client.github.GithubApiService
 import com.ixfp.gitmon.controller.request.CreateRepoRequest
 import com.ixfp.gitmon.controller.response.GithubRepoUrlResponse
 import com.ixfp.gitmon.domain.auth.AuthService
@@ -16,10 +17,14 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestAttribute
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 import javax.naming.AuthenticationException
 
 @RequestMapping("/api/v1/member")
@@ -28,6 +33,7 @@ import javax.naming.AuthenticationException
 class MemberController(
     private val authService: AuthService,
     private val memberService: MemberService,
+    private val githubApiService: GithubApiService,
 ) {
     @Operation(
         summary = "레포지토리 생성/갱신",
@@ -111,6 +117,42 @@ class MemberController(
             }
         } catch (e: Exception) {
             log.error(e) { "Failed to check repository name: ${e.message}" }
+            val status =
+                when (e) {
+                    is IllegalArgumentException -> HttpStatus.BAD_REQUEST
+                    is AuthenticationException -> HttpStatus.UNAUTHORIZED
+                    else -> HttpStatus.INTERNAL_SERVER_ERROR
+                }
+            ResponseEntity.status(status).build()
+        }
+    }
+
+    @Operation(
+        summary = "레포지토리 파일 추가",
+        description = "특정 파일의 base64 인코딩된 내용을 기반으로 파일을 repo에 추가합니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "파일 업로드 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            ApiResponse(responseCode = "401", description = "인증 실패 (엑세스 토큰 문제)"),
+            ApiResponse(responseCode = "500", description = "서버 내부 오류"),
+        ],
+    )
+    @PutMapping("/repo/upsert_file")
+    fun upsertFile(
+        @RequestPart file: MultipartFile,
+        @RequestParam repo: String,
+        @RequestParam path: String,
+        @RequestHeader("Authorization") authorizationHeader: String,
+    ): ResponseEntity<Unit> {
+        return try {
+            val accessToken = authorizationHeader.removePrefix("Bearer ")
+            // TODO(KHJ): 여기 에러 핸들링할 것
+            githubApiService.upsertFile(accessToken, file, repo, path)
+            ResponseEntity.ok().build()
+        } catch (e: Exception) {
+            log.error(e) { "Failed to upsert file: ${e.message}" }
             val status =
                 when (e) {
                     is IllegalArgumentException -> HttpStatus.BAD_REQUEST

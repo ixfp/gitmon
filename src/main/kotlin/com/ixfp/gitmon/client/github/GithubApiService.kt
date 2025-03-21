@@ -2,10 +2,13 @@ package com.ixfp.gitmon.client.github
 
 import com.ixfp.gitmon.client.github.request.GithubAccessTokenRequest
 import com.ixfp.gitmon.client.github.request.GithubCreateRepositoryRequest
+import com.ixfp.gitmon.client.github.request.GithubUpsertFileRequest
 import com.ixfp.gitmon.client.github.response.GithubUserResponse
+import com.ixfp.gitmon.common.util.Base64Encoder
 import com.ixfp.gitmon.common.util.BearerToken
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import org.springframework.web.multipart.MultipartFile
 
 @Component
 class GithubApiService(
@@ -28,9 +31,30 @@ class GithubApiService(
         return githubOauth2ApiClient.fetchAccessToken(request).accessToken
     }
 
-    // TODO(KHJ): dummy function, 관련 api 나오면 정리할 것
-    fun hasRepository(githubAccessToken: String): Boolean {
-        return false
+    fun upsertFile(
+        githubAccessToken: String,
+        content: MultipartFile,
+        repo: String,
+        path: String,
+        commitMessage: String = "Upsert File by API",
+    ): String {
+        val request =
+            GithubUpsertFileRequest(
+                message = "Add New File",
+                content = Base64Encoder.encodeBase64(content),
+                sha = "",
+            )
+        val owner = "traceoflight" // TODO(KHJ): db에서 owner name 가져오는 부분 대응할 것
+        val response =
+            githubResourceApiClient.upsertFile(
+                bearerToken = BearerToken(githubAccessToken).format(),
+                owner = owner,
+                repo = repo,
+                path = path,
+                request = request,
+            )
+
+        return response.sha
     }
 
     private fun createRepository(
