@@ -1,12 +1,13 @@
 package com.ixfp.gitmon.controller
 
-import com.ixfp.gitmon.common.const.AUTHENTICATED_MEMBER
-import com.ixfp.gitmon.controller.request.CreatePostingRequest
+import com.ixfp.gitmon.config.docs.ACCESS_TOKEN
+import com.ixfp.gitmon.config.web.AUTHENTICATED_MEMBER
 import com.ixfp.gitmon.domain.member.Member
 import com.ixfp.gitmon.domain.posting.PostingService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestAttribute
@@ -24,7 +25,7 @@ class PostingController(
     @Operation(
         summary = "포스팅 생성",
         description = "포스팅을 생성합니다.",
-        security = [SecurityRequirement(name = "accessToken")],
+        security = [SecurityRequirement(name = ACCESS_TOKEN)],
     )
     @PostMapping(
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],

@@ -1,7 +1,7 @@
 package com.ixfp.gitmon.controller
 
-import com.ixfp.gitmon.client.github.GithubApiService
-import com.ixfp.gitmon.common.const.AUTHENTICATED_MEMBER
+import com.ixfp.gitmon.config.docs.ACCESS_TOKEN
+import com.ixfp.gitmon.config.web.AUTHENTICATED_MEMBER
 import com.ixfp.gitmon.controller.request.CreateRepoRequest
 import com.ixfp.gitmon.controller.response.GithubRepoUrlResponse
 import com.ixfp.gitmon.domain.auth.AuthService
@@ -11,6 +11,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -29,11 +30,11 @@ import javax.naming.AuthenticationException
 class MemberController(
     private val authService: AuthService,
     private val memberService: MemberService,
-    private val githubApiService: GithubApiService,
 ) {
     @Operation(
         summary = "레포지토리 생성/갱신",
         description = "이미 설정된 레포지토리가 있다면 갱신하고, 없다면 새로 생성합니다.",
+        security = [SecurityRequirement(name = ACCESS_TOKEN)],
     )
     @ApiResponses(
         value = [
@@ -89,6 +90,7 @@ class MemberController(
     @Operation(
         summary = "레포지토리 이름 중복 조회",
         description = "입력한 레포지토리 이름이 이미 사용 중인지 확인합니다.",
+        security = [SecurityRequirement(name = ACCESS_TOKEN)],
     )
     @ApiResponses(
         value = [
