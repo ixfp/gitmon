@@ -10,6 +10,7 @@ import io.swagger.v3.oas.models.media.Schema
 import io.swagger.v3.oas.models.responses.ApiResponse
 import io.swagger.v3.oas.models.responses.ApiResponses
 import io.swagger.v3.oas.models.security.SecurityScheme
+import io.swagger.v3.oas.models.servers.Server
 import org.springdoc.core.customizers.OpenApiCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -25,16 +26,19 @@ class SpringDocConfig {
     // SpringDoc Main Title 세팅
     @Bean
     fun customOpenAPI(): OpenAPI {
-        return OpenAPI().info(configurationInfo()).components(
-            Components().addSecuritySchemes(
-                ACCESS_TOKEN,
-                SecurityScheme()
-                    .name(ACCESS_TOKEN)
-                    .type(SecurityScheme.Type.APIKEY)
-                    .`in`(SecurityScheme.In.HEADER)
-                    .bearerFormat("JWT"),
-            ),
-        )
+        return OpenAPI()
+            .info(configurationInfo())
+            .components(
+                Components().addSecuritySchemes(
+                    ACCESS_TOKEN,
+                    SecurityScheme()
+                        .name(ACCESS_TOKEN)
+                        .type(SecurityScheme.Type.APIKEY)
+                        .`in`(SecurityScheme.In.HEADER)
+                        .bearerFormat("JWT"),
+                ),
+            )
+            .addServersItem(Server().url("https://api.gitmon.blog"))
     }
 
     private fun configurationInfo(): Info {
