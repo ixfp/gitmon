@@ -53,6 +53,6 @@ class GithubApiService(
                 request = request,
             )
 
-        return response.sha
+        return response.content.sha
     }
 }
