@@ -24,8 +24,9 @@ class WebMvcConfig(
     }
 
     companion object {
-        private val GITMON_CLIENT_URL = "https://gitmon.blog"
-        private val ALLOWED_ORIGINS = arrayOf(GITMON_CLIENT_URL)
+        private const val GITMON_CLIENT_URL = "https://gitmon.blog"
+        private const val GITMON_API_URL = "https://api.gitmon.blog"
+        private val ALLOWED_ORIGINS = arrayOf(GITMON_CLIENT_URL, GITMON_API_URL)
         private val ALLOWED_METHODS = arrayOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
     }
 }
