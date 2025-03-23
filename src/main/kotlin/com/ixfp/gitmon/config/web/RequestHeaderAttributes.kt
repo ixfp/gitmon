@@ -1,3 +1,3 @@
-package com.ixfp.gitmon.common.const
+package com.ixfp.gitmon.config.web
 
 const val AUTHENTICATED_MEMBER = "authenticatedMember"

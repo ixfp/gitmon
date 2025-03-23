@@ -1,4 +1,4 @@
-package com.ixfp.gitmon.config
+package com.ixfp.gitmon.config.web
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.CorsRegistry

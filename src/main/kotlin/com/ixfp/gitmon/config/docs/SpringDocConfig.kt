@@ -1,4 +1,4 @@
-package com.ixfp.gitmon.common.config
+package com.ixfp.gitmon.config.docs
 
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
@@ -9,6 +9,7 @@ import io.swagger.v3.oas.models.media.MediaType
 import io.swagger.v3.oas.models.media.Schema
 import io.swagger.v3.oas.models.responses.ApiResponse
 import io.swagger.v3.oas.models.responses.ApiResponses
+import io.swagger.v3.oas.models.security.SecurityScheme
 import org.springdoc.core.customizers.OpenApiCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -19,13 +20,21 @@ data class ResponseMsg(
     val timestamp: String = "2025-01-01T12:00:00Z",
 )
 
-// TODO(KHJ): 인증 관련 처리 필요함
 @Configuration
 class SpringDocConfig {
     // SpringDoc Main Title 세팅
     @Bean
     fun customOpenAPI(): OpenAPI {
-        return OpenAPI().info(configurationInfo()).components(Components())
+        return OpenAPI().info(configurationInfo()).components(
+            Components().addSecuritySchemes(
+                ACCESS_TOKEN,
+                SecurityScheme()
+                    .name(ACCESS_TOKEN)
+                    .type(SecurityScheme.Type.APIKEY)
+                    .`in`(SecurityScheme.In.HEADER)
+                    .bearerFormat("JWT"),
+            ),
+        )
     }
 
     private fun configurationInfo(): Info {
