@@ -51,6 +51,9 @@ interface GithubResourceApiClient {
         @RequestHeader("X-GitHub-Api-Version") apiVersion: String = "2022-11-28",
     ): GithubCreateRepositoryResponse
 
+    /**
+     * https://docs.github.com/ko/rest/repos/contents
+     */
     @PutMapping(
         "/repos/{owner}/{repo}/contents/{path}",
         consumes = [MediaType.APPLICATION_JSON_VALUE],

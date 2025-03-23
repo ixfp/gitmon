@@ -1,7 +1,6 @@
 package com.ixfp.gitmon.client.github
 
 import com.ixfp.gitmon.client.github.request.GithubAccessTokenRequest
-import com.ixfp.gitmon.client.github.request.GithubCreateRepositoryRequest
 import com.ixfp.gitmon.client.github.request.GithubUpsertFileRequest
 import com.ixfp.gitmon.client.github.response.GithubUserResponse
 import com.ixfp.gitmon.common.util.Base64Encoder
@@ -34,6 +33,7 @@ class GithubApiService(
     fun upsertFile(
         githubAccessToken: String,
         content: MultipartFile,
+        githubUsername: String,
         repo: String,
         path: String,
         commitMessage: String = "Upsert File by API",
@@ -44,23 +44,15 @@ class GithubApiService(
                 content = Base64Encoder.encodeBase64(content),
                 sha = "",
             )
-        val owner = "traceoflight" // TODO(KHJ): db에서 owner name 가져오는 부분 대응할 것
         val response =
             githubResourceApiClient.upsertFile(
                 bearerToken = BearerToken(githubAccessToken).format(),
-                owner = owner,
+                owner = githubUsername,
                 repo = repo,
                 path = path,
                 request = request,
             )
 
         return response.sha
-    }
-
-    private fun createRepository(
-        token: String,
-        request: GithubCreateRepositoryRequest,
-    ) {
-        githubResourceApiClient.createRepository(token, request)
     }
 }
