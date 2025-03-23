@@ -4,6 +4,7 @@ import com.ixfp.gitmon.config.docs.ACCESS_TOKEN
 import com.ixfp.gitmon.config.web.AUTHENTICATED_MEMBER
 import com.ixfp.gitmon.domain.member.Member
 import com.ixfp.gitmon.domain.posting.PostingService
+import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springframework.http.HttpStatus
@@ -44,7 +45,12 @@ class PostingController(
                     is IllegalArgumentException -> HttpStatus.BAD_REQUEST
                     else -> HttpStatus.INTERNAL_SERVER_ERROR
                 }
+            log.error { "포스팅 생성 중 에러 발생: ${e.message}" }
             return ResponseEntity(status)
         }
+    }
+
+    companion object {
+        private val log = logger {}
     }
 }
