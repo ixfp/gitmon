@@ -16,8 +16,9 @@ class PostingService(
         title: String,
         content: MultipartFile,
     ) {
-        val githubAccessToken = memberReader.findAccessTokenByMemberId(member.id)
-            ?: throw IllegalArgumentException("Github 엑세스 토큰이 없습니다.")
+        val githubAccessToken =
+            memberReader.findAccessTokenByMemberId(member.id)
+                ?: throw IllegalArgumentException("Github 엑세스 토큰이 없습니다.")
 
         if (member.repoName == null) {
             throw IllegalArgumentException("포스팅 레포지토리가 없습니다.")

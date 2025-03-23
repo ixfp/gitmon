@@ -39,10 +39,11 @@ class PostingController(
             postingService.create(member, title, content)
             return ResponseEntity(HttpStatus.CREATED)
         } catch (e: Exception) {
-            val status = when (e) {
-                is IllegalArgumentException -> HttpStatus.BAD_REQUEST
-                else -> HttpStatus.INTERNAL_SERVER_ERROR
-            }
+            val status =
+                when (e) {
+                    is IllegalArgumentException -> HttpStatus.BAD_REQUEST
+                    else -> HttpStatus.INTERNAL_SERVER_ERROR
+                }
             return ResponseEntity(status)
         }
     }
