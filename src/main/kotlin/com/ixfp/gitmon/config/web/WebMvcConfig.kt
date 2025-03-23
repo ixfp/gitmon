@@ -1,4 +1,4 @@
-package com.ixfp.gitmon.config
+package com.ixfp.gitmon.config.web
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.CorsRegistry
@@ -12,6 +12,7 @@ class WebMvcConfig(
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(jwtAuthInterceptor)
             .addPathPatterns("/api/v1/member/repo/**") // 인증이 필요한 경로
+            .addPathPatterns("/api/v1/posting/**")
     }
 
     override fun addCorsMappings(registry: CorsRegistry) {
