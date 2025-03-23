@@ -10,8 +10,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestAttribute
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
@@ -26,14 +26,16 @@ class PostingController(
         description = "포스팅을 생성합니다.",
         security = [SecurityRequirement(name = "accessToken")],
     )
-    @PostMapping
+    @PostMapping(
+        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
+    )
     fun createPosting(
-        @RequestBody request: CreatePostingRequest,
+        @RequestParam title: String,
         @RequestPart content: MultipartFile,
         @RequestAttribute(AUTHENTICATED_MEMBER) member: Member,
     ): ResponseEntity<HttpStatus> {
         try {
-            postingService.create(member, request.title, content)
+            postingService.create(member, title, content)
             return ResponseEntity(HttpStatus.CREATED)
         } catch (e: Exception) {
             val status = when (e) {
