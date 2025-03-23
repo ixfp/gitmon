@@ -33,8 +33,9 @@ class SpringDocConfig {
                     ACCESS_TOKEN,
                     SecurityScheme()
                         .name(ACCESS_TOKEN)
-                        .type(SecurityScheme.Type.APIKEY)
+                        .type(SecurityScheme.Type.HTTP)
                         .`in`(SecurityScheme.In.HEADER)
+                        .scheme("bearer")
                         .bearerFormat("JWT"),
                 ),
             )
