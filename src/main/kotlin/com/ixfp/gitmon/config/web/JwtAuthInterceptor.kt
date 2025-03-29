@@ -18,6 +18,10 @@ class JwtAuthInterceptor(
         response: HttpServletResponse,
         handler: Any,
     ): Boolean {
+        if (request.method.equals("OPTIONS", ignoreCase = true)) {
+            return true
+        }
+
         val authHeader = request.getHeader("Authorization")
 
         if (authHeader.isNullOrBlank() || !authHeader.startsWith("Bearer ")) {
