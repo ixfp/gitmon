@@ -91,14 +91,21 @@ class Oauth2Controller(
         try {
             val githubAccessToken = githubApiService.getAccessTokenByCode(request.code)
             val githubUser = githubApiService.getGithubUser(githubAccessToken)
-            var member = authService.getMemberByGithubId(githubUser.id.toLong())
-            if (member == null) {
-                member = authService.signup(githubAccessToken, githubUser)
-            }
+            val member =
+                authService.getMemberByGithubId(githubUser.id.toLong())
+                    ?: authService.signup(githubAccessToken, githubUser)
+
             authService.login(githubAccessToken, member)
+
             val accessToken = authService.createAccessToken(member)
             val isRepoCreated = member.repoName != null
-            val response = AccessTokenResponse(accessToken, isRepoCreated)
+
+            val response =
+                AccessTokenResponse(
+                    id = member.exposedId,
+                    accessToken = accessToken,
+                    isRepoCreated = isRepoCreated,
+                )
             return ResponseEntity.status(HttpStatus.CREATED).body(response)
         } catch (e: Exception) {
             log.error(e) { "Failed to login: ${e.message}" }
