@@ -31,6 +31,9 @@ class GithubApiService(
             )
         val response = githubOauth2ApiClient.fetchAccessToken(request)
         log.info { "GithubApiService#getAccessTokenByCode end. response=$response" }
+        if (response.accessToken == null) {
+            throw RuntimeException("Failed to get access token from github. response=$response")
+        }
         return response.accessToken
     }
 
