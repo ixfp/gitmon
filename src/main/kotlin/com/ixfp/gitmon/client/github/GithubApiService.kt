@@ -5,6 +5,7 @@ import com.ixfp.gitmon.client.github.request.GithubUpsertFileRequest
 import com.ixfp.gitmon.client.github.response.GithubUserResponse
 import com.ixfp.gitmon.common.util.Base64Encoder
 import com.ixfp.gitmon.common.util.BearerToken
+import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
@@ -21,13 +22,16 @@ class GithubApiService(
     }
 
     fun getAccessTokenByCode(code: String): String {
+        log.info { "GithubApiService#getAccessTokenByCode start. code=$code" }
         val request =
             GithubAccessTokenRequest(
                 code = code,
                 client_id = githubClientId,
                 client_secret = githubClientSecret,
             )
-        return githubOauth2ApiClient.fetchAccessToken(request).accessToken
+        val response = githubOauth2ApiClient.fetchAccessToken(request)
+        log.info { "GithubApiService#getAccessTokenByCode end. response=$response" }
+        return response.accessToken
     }
 
     fun upsertFile(
@@ -54,5 +58,9 @@ class GithubApiService(
             )
 
         return response.content.sha
+    }
+
+    companion object {
+        private val log = logger {}
     }
 }
