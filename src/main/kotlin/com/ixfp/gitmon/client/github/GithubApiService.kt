@@ -2,6 +2,7 @@ package com.ixfp.gitmon.client.github
 
 import com.ixfp.gitmon.client.github.request.GithubAccessTokenRequest
 import com.ixfp.gitmon.client.github.request.GithubUpsertFileRequest
+import com.ixfp.gitmon.client.github.response.GithubContent
 import com.ixfp.gitmon.client.github.response.GithubUserResponse
 import com.ixfp.gitmon.common.util.Base64Encoder
 import com.ixfp.gitmon.common.util.BearerToken
@@ -44,7 +45,7 @@ class GithubApiService(
         repo: String,
         path: String,
         commitMessage: String = "Upsert File by API",
-    ): String {
+    ): GithubContent {
         val request =
             GithubUpsertFileRequest(
                 message = "Add New File",
@@ -60,7 +61,7 @@ class GithubApiService(
                 request = request,
             )
 
-        return response.content.sha
+        return response.content
     }
 
     companion object {

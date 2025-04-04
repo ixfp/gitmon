@@ -6,6 +6,7 @@ import com.ixfp.gitmon.domain.member.MemberReader
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import java.util.UUID
 
 @Service
 class PostingService(
@@ -26,7 +27,7 @@ class PostingService(
             throw IllegalArgumentException("포스팅 레포지토리가 없습니다.")
         }
 
-        val contentSha =
+        val githubContent =
             githubApiService.upsertFile(
                 githubAccessToken = githubAccessToken,
                 content = content,
@@ -34,7 +35,51 @@ class PostingService(
                 repo = member.repoName,
                 path = "$title.md",
             )
-        log.info { "PostingService#create end. contentSha=$contentSha" }
+        log.info { "PostingService#create end. contentSha=$githubContent.sha" }
+    }
+
+    private fun uploadImage(
+        member: Member,
+        content: MultipartFile,
+    ): String {
+        val githubAccessToken =
+            memberReader.findAccessTokenByMemberId(member.id)
+                ?: throw IllegalArgumentException("Github 엑세스 토큰이 없습니다.")
+
+        if (member.repoName == null) {
+            throw IllegalArgumentException("포스팅 레포지토리가 없습니다.")
+        }
+
+        val extension = resolveExtension(content) ?: throw IllegalArgumentException("파일의 확장자가 이미지가 아닙니다.")
+        val imageId = UUID.randomUUID().toString()
+        val filename = "$imageId.$extension"
+        val path = "images/$filename"
+
+        val githubContent =
+            githubApiService.upsertFile(
+                githubAccessToken = githubAccessToken,
+                content = content,
+                githubUsername = member.githubUsername,
+                repo = member.repoName,
+                path = path,
+            )
+
+        return githubContent.download_url
+    }
+
+    private fun resolveExtension(file: MultipartFile): String? {
+        val contentType = file.contentType
+        if (contentType != null && contentType.startsWith("image/")) {
+            val subtype = contentType.substringAfter("image/")
+            if (subtype.isNotBlank()) {
+                return subtype
+            }
+        }
+        val extension = file.originalFilename?.substringAfterLast('.', "")
+        if (!extension.isNullOrBlank()) {
+            return extension
+        }
+        return null
     }
 
     companion object {
