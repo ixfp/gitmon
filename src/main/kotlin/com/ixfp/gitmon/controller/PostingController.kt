@@ -1,12 +1,9 @@
 package com.ixfp.gitmon.controller
 
-import com.ixfp.gitmon.config.docs.ACCESS_TOKEN
 import com.ixfp.gitmon.config.web.AUTHENTICATED_MEMBER
 import com.ixfp.gitmon.domain.member.Member
 import com.ixfp.gitmon.domain.posting.PostingService
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -18,20 +15,15 @@ import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 
-@RequestMapping("/api/v1/posting")
 @RestController
+@RequestMapping("/api/v1/posting")
 class PostingController(
     private val postingService: PostingService,
-) {
-    @Operation(
-        summary = "포스팅 생성",
-        description = "포스팅을 생성합니다.",
-        security = [SecurityRequirement(name = ACCESS_TOKEN)],
-    )
+) : IPostingController {
     @PostMapping(
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
     )
-    fun createPosting(
+    override fun createPosting(
         @RequestParam title: String,
         @RequestPart content: MultipartFile,
         @RequestAttribute(AUTHENTICATED_MEMBER) member: Member,
