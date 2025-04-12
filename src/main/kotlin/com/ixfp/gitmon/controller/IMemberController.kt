@@ -2,15 +2,16 @@ package com.ixfp.gitmon.controller
 
 import com.ixfp.gitmon.config.docs.ACCESS_TOKEN
 import com.ixfp.gitmon.controller.request.CreateRepoRequest
+import com.ixfp.gitmon.controller.response.CheckRepoNameResponse
 import com.ixfp.gitmon.controller.response.GithubRepoUrlResponse
 import com.ixfp.gitmon.domain.member.Member
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 
 @Tag(name = "Member", description = "회원 관련 API")
 interface IMemberController {
@@ -22,56 +23,88 @@ interface IMemberController {
     @ApiResponses(
         value = [
             ApiResponse(
-                responseCode = "201",
                 description = "레포 생성/갱신 성공",
-            ),
-            ApiResponse(
-                responseCode = "200",
-                description = "레포지토리 이름이 설정된 사용자 레포 이름과 동일함",
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description = "잘못된 요청 (예: 파라미터 오류 등)",
-            ),
-            ApiResponse(
-                responseCode = "401",
-                description = "인증 실패 (엑세스 토큰 문제)",
-            ),
-            ApiResponse(
-                responseCode = "500",
-                description = "서버 내부 오류",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema =
+                            Schema(
+                                example =
+                                    """
+                                    {
+                                        "status": "SUCCESS",
+                                        "data": null
+                                    }
+                                    """,
+                            ),
+                    ),
+                ],
             ),
         ],
     )
     fun upsertRepo(
         request: CreateRepoRequest,
         member: Member,
-    ): ResponseEntity<HttpStatus>
+    ): com.ixfp.gitmon.common.type.ApiResponse<Unit>
 
     @Operation(
         summary = "레포지토리 이름 중복 조회",
-        description = "입력한 레포지토리 이름이 이미 사용 중인지 확인합니다.",
+        description = "입력한 레포지토리 이름을 사용할 수 있는지 확인합니다.",
         security = [SecurityRequirement(name = ACCESS_TOKEN)],
     )
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "사용 가능한 레포지토리 이름"),
-            ApiResponse(responseCode = "409", description = "이미 사용 중인 레포지토리 이름"),
-            ApiResponse(responseCode = "401", description = "인증 실패 (엑세스 토큰 문제)"),
-            ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            ApiResponse(responseCode = "500", description = "서버 내부 오류"),
+            ApiResponse(
+                description = "사용 가능한 레포지토리 이름인지 확인",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema =
+                            Schema(
+                                example =
+                                    """
+                                    {
+                                        "status": "SUCCESS",
+                                        "data": {
+                                            "isAvailable": true
+                                        }
+                                    }
+                                    """,
+                            ),
+                    ),
+                ],
+            ),
         ],
     )
     fun checkRepoName(
         name: String,
         member: Member,
-    ): ResponseEntity<Unit>
+    ): com.ixfp.gitmon.common.type.ApiResponse<CheckRepoNameResponse>
 
     @Operation(summary = "레포지토리 URL 조회")
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "404", description = "레포지토리 URL 찾을 수 없음"),
+            ApiResponse(
+                description = "레포지토리 URL 조회",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema =
+                            Schema(
+                                example =
+                                    """
+                                    {
+                                        "status": "SUCCESS",
+                                        "data": {
+                                            "githubRepoUrl": "https://api.gitmon.blog/api/v1/member/github/repo?githubUsername=kimsj-git"
+                                        }
+                                    }
+                                    """,
+                            ),
+                    ),
+                ],
+            ),
         ],
     )
-    fun findGithubRepoUrl(githubUsername: String): ResponseEntity<GithubRepoUrlResponse>
+    fun findGithubRepoUrl(githubUsername: String): com.ixfp.gitmon.common.type.ApiResponse<GithubRepoUrlResponse>
 }

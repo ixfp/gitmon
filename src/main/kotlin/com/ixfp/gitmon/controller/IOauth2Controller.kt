@@ -38,28 +38,27 @@ interface IOauth2Controller {
     @ApiResponses(
         value = [
             ApiResponse(
-                responseCode = "201",
                 description = "로그인 및 토큰 발급 성공",
                 content = [
                     Content(
-                        mediaType = MediaType.APPLICATION_JSON_VALUE,
-                        schema = Schema(implementation = AccessTokenResponse::class),
+                        mediaType = "application/json",
+                        schema =
+                            Schema(
+                                example =
+                                    """
+                                    {
+                                        "status": "SUCCESS",
+                                        "data": {
+                                            "accessToken": "header.payload.signature"
+                                        }
+                                    }
+                                    """,
+                            ),
                     ),
                 ],
             ),
-            ApiResponse(
-                responseCode = "400",
-                description = "잘못된 요청 (code가 유효하지 않은 경우 등)",
-            ),
-            ApiResponse(
-                responseCode = "401",
-                description = "인증 실패",
-            ),
-            ApiResponse(
-                responseCode = "500",
-                description = "서버 에러",
-            ),
+            // TODO: 깃허브 API 에러로 인한 에러 응답 예제 추가
         ],
     )
-    fun login(request: GithubOauth2Request): ResponseEntity<AccessTokenResponse>
+    fun login(request: GithubOauth2Request): com.ixfp.gitmon.common.type.ApiResponse<AccessTokenResponse>
 }

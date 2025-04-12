@@ -55,8 +55,8 @@ class SpringDocConfig {
                     val apiResponses: ApiResponses = operation.responses
 
                     // 미지원 Standard Response 추가
-                    apiResponses.addApiResponse("400", customApiResponse("400", "Bad Request"))
-                    apiResponses.addApiResponse("500", customApiResponse("500", "Internal Server Error"))
+//                    apiResponses.addApiResponse("400", customApiResponse("400", "Bad Request"))
+//                    apiResponses.addApiResponse("500", customApiResponse("500", "Internal Server Error"))
                 }
             }
         }

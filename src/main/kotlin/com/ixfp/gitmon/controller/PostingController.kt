@@ -1,12 +1,12 @@
 package com.ixfp.gitmon.controller
 
+import com.ixfp.gitmon.common.type.ApiErrorType
+import com.ixfp.gitmon.common.type.ApiResponse
 import com.ixfp.gitmon.config.web.AUTHENTICATED_MEMBER
 import com.ixfp.gitmon.domain.member.Member
 import com.ixfp.gitmon.domain.posting.PostingService
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestAttribute
 import org.springframework.web.bind.annotation.RequestMapping
@@ -27,18 +27,18 @@ class PostingController(
         @RequestParam title: String,
         @RequestPart content: MultipartFile,
         @RequestAttribute(AUTHENTICATED_MEMBER) member: Member,
-    ): ResponseEntity<HttpStatus> {
+    ): ApiResponse<Unit> {
         try {
             postingService.create(member, title, content)
-            return ResponseEntity(HttpStatus.CREATED)
+            return ApiResponse.success()
         } catch (e: Exception) {
-            val status =
+            val errorType =
                 when (e) {
-                    is IllegalArgumentException -> HttpStatus.BAD_REQUEST
-                    else -> HttpStatus.INTERNAL_SERVER_ERROR
+                    is IllegalArgumentException -> ApiErrorType.BAD_REQUEST
+                    else -> ApiErrorType.INTERNAL_SERVER_ERROR
                 }
             log.error { "포스팅 생성 중 에러 발생: ${e.message}" }
-            return ResponseEntity(status)
+            return ApiResponse.error(errorType)
         }
     }
 
