@@ -1,6 +1,8 @@
 package com.ixfp.gitmon.controller
 
 import com.ixfp.gitmon.client.github.GithubApiService
+import com.ixfp.gitmon.common.type.ApiErrorType
+import com.ixfp.gitmon.common.type.ApiResponse
 import com.ixfp.gitmon.controller.request.GithubOauth2Request
 import com.ixfp.gitmon.controller.response.AccessTokenResponse
 import com.ixfp.gitmon.domain.auth.AuthService
@@ -33,7 +35,7 @@ class Oauth2Controller(
     @PostMapping("/login/oauth/github/tokens")
     override fun login(
         @RequestBody request: GithubOauth2Request,
-    ): ResponseEntity<AccessTokenResponse> {
+    ): ApiResponse<AccessTokenResponse> {
         try {
             val githubAccessToken = githubApiService.getAccessTokenByCode(request.code)
             val githubUser = githubApiService.getGithubUser(githubAccessToken)
@@ -52,16 +54,16 @@ class Oauth2Controller(
                     accessToken = accessToken,
                     isRepoCreated = isRepoCreated,
                 )
-            return ResponseEntity.status(HttpStatus.CREATED).body(response)
+            return ApiResponse.success(response)
         } catch (e: Exception) {
             log.error(e) { "Failed to login: ${e.message}" }
-            val status =
+            val errorType =
                 when (e) {
-                    is IllegalArgumentException -> HttpStatus.BAD_REQUEST
-                    is AuthenticationException -> HttpStatus.UNAUTHORIZED
-                    else -> HttpStatus.INTERNAL_SERVER_ERROR
+                    is IllegalArgumentException -> ApiErrorType.BAD_REQUEST
+                    is AuthenticationException -> ApiErrorType.UNAUTHORIZED
+                    else -> ApiErrorType.INTERNAL_SERVER_ERROR
                 }
-            return ResponseEntity.status(status).build()
+            return ApiResponse.error(errorType)
         }
     }
 
