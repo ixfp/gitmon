@@ -1,26 +1,26 @@
 package com.ixfp.gitmon.common.type
 
-data class ApiResponse<T>(
+data class ApiResponseBody<T>(
     val status: ApiStatus,
     val data: T? = null,
     val error: ApiErrorType? = null,
 ) {
     companion object {
-        fun <T> success(): ApiResponse<T> {
-            return ApiResponse(
+        fun <T> success(): ApiResponseBody<T> {
+            return ApiResponseBody(
                 status = ApiStatus.SUCCESS,
             )
         }
 
-        fun <T> success(data: T): ApiResponse<T> {
-            return ApiResponse(
+        fun <T> success(data: T): ApiResponseBody<T> {
+            return ApiResponseBody(
                 status = ApiStatus.SUCCESS,
                 data = data,
             )
         }
 
-        fun <T> error(error: ApiErrorType): ApiResponse<T> {
-            return ApiResponse(
+        fun <T> error(error: ApiErrorType): ApiResponseBody<T> {
+            return ApiResponseBody(
                 status = error.status,
                 error = error,
             )

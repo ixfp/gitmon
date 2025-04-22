@@ -44,5 +44,5 @@ interface IPostingController {
         title: String,
         content: MultipartFile,
         member: Member,
-    ): com.ixfp.gitmon.common.type.ApiResponse<Unit>
+    ): com.ixfp.gitmon.common.type.ApiResponseBody<Unit>
 }

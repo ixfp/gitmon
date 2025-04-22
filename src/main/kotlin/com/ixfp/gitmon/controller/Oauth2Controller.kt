@@ -2,7 +2,7 @@ package com.ixfp.gitmon.controller
 
 import com.ixfp.gitmon.client.github.GithubApiService
 import com.ixfp.gitmon.common.type.ApiErrorType
-import com.ixfp.gitmon.common.type.ApiResponse
+import com.ixfp.gitmon.common.type.ApiResponseBody
 import com.ixfp.gitmon.controller.request.GithubOauth2Request
 import com.ixfp.gitmon.controller.response.AccessTokenResponse
 import com.ixfp.gitmon.domain.auth.AuthService
@@ -35,7 +35,7 @@ class Oauth2Controller(
     @PostMapping("/login/oauth/github/tokens")
     override fun login(
         @RequestBody request: GithubOauth2Request,
-    ): ApiResponse<AccessTokenResponse> {
+    ): ApiResponseBody<AccessTokenResponse> {
         try {
             val githubAccessToken = githubApiService.getAccessTokenByCode(request.code)
             val githubUser = githubApiService.getGithubUser(githubAccessToken)
@@ -54,7 +54,7 @@ class Oauth2Controller(
                     accessToken = accessToken,
                     isRepoCreated = isRepoCreated,
                 )
-            return ApiResponse.success(response)
+            return ApiResponseBody.success(response)
         } catch (e: Exception) {
             log.error(e) { "Failed to login: ${e.message}" }
             val errorType =
@@ -63,7 +63,7 @@ class Oauth2Controller(
                     is AuthenticationException -> ApiErrorType.UNAUTHORIZED
                     else -> ApiErrorType.INTERNAL_SERVER_ERROR
                 }
-            return ApiResponse.error(errorType)
+            return ApiResponseBody.error(errorType)
         }
     }
 

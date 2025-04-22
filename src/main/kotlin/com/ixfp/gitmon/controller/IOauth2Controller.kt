@@ -60,5 +60,5 @@ interface IOauth2Controller {
             // TODO: 깃허브 API 에러로 인한 에러 응답 예제 추가
         ],
     )
-    fun login(request: GithubOauth2Request): com.ixfp.gitmon.common.type.ApiResponse<AccessTokenResponse>
+    fun login(request: GithubOauth2Request): com.ixfp.gitmon.common.type.ApiResponseBody<AccessTokenResponse>
 }

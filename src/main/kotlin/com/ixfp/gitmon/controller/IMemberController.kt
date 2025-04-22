@@ -45,7 +45,7 @@ interface IMemberController {
     fun upsertRepo(
         request: CreateRepoRequest,
         member: Member,
-    ): com.ixfp.gitmon.common.type.ApiResponse<Unit>
+    ): com.ixfp.gitmon.common.type.ApiResponseBody<Unit>
 
     @Operation(
         summary = "레포지토리 이름 중복 조회",
@@ -79,7 +79,7 @@ interface IMemberController {
     fun checkRepoName(
         name: String,
         member: Member,
-    ): com.ixfp.gitmon.common.type.ApiResponse<CheckRepoNameResponse>
+    ): com.ixfp.gitmon.common.type.ApiResponseBody<CheckRepoNameResponse>
 
     @Operation(summary = "레포지토리 URL 조회")
     @ApiResponses(
@@ -106,5 +106,5 @@ interface IMemberController {
             ),
         ],
     )
-    fun findGithubRepoUrl(githubUsername: String): com.ixfp.gitmon.common.type.ApiResponse<GithubRepoUrlResponse>
+    fun findGithubRepoUrl(githubUsername: String): com.ixfp.gitmon.common.type.ApiResponseBody<GithubRepoUrlResponse>
 }

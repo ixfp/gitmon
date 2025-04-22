@@ -1,7 +1,7 @@
 package com.ixfp.gitmon.controller
 
 import com.ixfp.gitmon.common.type.ApiErrorType
-import com.ixfp.gitmon.common.type.ApiResponse
+import com.ixfp.gitmon.common.type.ApiResponseBody
 import com.ixfp.gitmon.config.web.AUTHENTICATED_MEMBER
 import com.ixfp.gitmon.domain.member.Member
 import com.ixfp.gitmon.domain.posting.PostingService
@@ -27,10 +27,10 @@ class PostingController(
         @RequestParam title: String,
         @RequestPart content: MultipartFile,
         @RequestAttribute(AUTHENTICATED_MEMBER) member: Member,
-    ): ApiResponse<Unit> {
+    ): ApiResponseBody<Unit> {
         try {
             postingService.create(member, title, content)
-            return ApiResponse.success()
+            return ApiResponseBody.success()
         } catch (e: Exception) {
             val errorType =
                 when (e) {
@@ -38,7 +38,7 @@ class PostingController(
                     else -> ApiErrorType.INTERNAL_SERVER_ERROR
                 }
             log.error { "포스팅 생성 중 에러 발생: ${e.message}" }
-            return ApiResponse.error(errorType)
+            return ApiResponseBody.error(errorType)
         }
     }
 
