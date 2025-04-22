@@ -5,16 +5,10 @@ data class ApiResponse<T>(
     val data: T? = null,
     val error: ApiErrorType? = null,
 ) {
-    constructor(data: T) : this(
-        status = ApiStatus.SUCCESS,
-        data = data,
-    )
-
     companion object {
         fun <T> success(): ApiResponse<T> {
             return ApiResponse(
                 status = ApiStatus.SUCCESS,
-                data = null,
             )
         }
 
