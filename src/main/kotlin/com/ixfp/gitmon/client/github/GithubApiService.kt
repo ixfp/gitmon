@@ -4,10 +4,10 @@ import com.ixfp.gitmon.client.github.request.GithubAccessTokenRequest
 import com.ixfp.gitmon.client.github.request.GithubUpsertFileRequest
 import com.ixfp.gitmon.client.github.response.GithubContent
 import com.ixfp.gitmon.client.github.response.GithubUserResponse
+import com.ixfp.gitmon.common.type.Profile
 import com.ixfp.gitmon.common.util.Base64Encoder
 import com.ixfp.gitmon.common.util.BearerToken
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
 
@@ -15,20 +15,30 @@ import org.springframework.web.multipart.MultipartFile
 class GithubApiService(
     private val githubOauth2ApiClient: GithubOauth2ApiClient,
     private val githubResourceApiClient: GithubResourceApiClient,
-    @Value("\${oauth2.client.github.id}") private val githubClientId: String,
-    @Value("\${oauth2.client.github.secret}") private val githubClientSecret: String,
+    private val githubProdClient: GithubOauth2ClientProdProperties,
+    private val githubDevClient: GithubOauth2ClientDevProperties,
 ) {
     fun getGithubUser(githubAccessToken: String): GithubUserResponse {
         return githubResourceApiClient.fetchUser(BearerToken(githubAccessToken).format())
     }
 
-    fun getAccessTokenByCode(code: String): String {
-        log.info { "GithubApiService#getAccessTokenByCode start. code=$code" }
+    fun getAuthRedirectionUrl(profile: Profile): String {
+        return when (profile) {
+            Profile.PROD -> buildAuthRedirectionUrl(githubProdClient.id)
+            Profile.DEV -> buildAuthRedirectionUrl(githubDevClient.id)
+        }
+    }
+
+    fun getAccessTokenByCode(
+        code: String,
+        profile: Profile,
+    ): String {
+        log.info { "GithubApiService#getAccessTokenByCode start. code=$code, profile=$profile" }
         val request =
             GithubAccessTokenRequest(
                 code = code,
-                client_id = githubClientId,
-                client_secret = githubClientSecret,
+                client_id = githubClientId(profile),
+                client_secret = githubClientSecret(profile),
             )
         val response = githubOauth2ApiClient.fetchAccessToken(request)
         log.info { "GithubApiService#getAccessTokenByCode end. response=$response" }
@@ -62,6 +72,24 @@ class GithubApiService(
             )
 
         return response.content
+    }
+
+    private fun buildAuthRedirectionUrl(githubClientId: String): String {
+        return "https://github.com/login/oauth/authorize?&scope=repo&client_id=$githubClientId"
+    }
+
+    private fun githubClientId(profile: Profile): String {
+        return when (profile) {
+            Profile.PROD -> githubProdClient.id
+            Profile.DEV -> githubDevClient.id
+        }
+    }
+
+    private fun githubClientSecret(profile: Profile): String {
+        return when (profile) {
+            Profile.PROD -> githubProdClient.secret
+            Profile.DEV -> githubDevClient.secret
+        }
     }
 
     companion object {

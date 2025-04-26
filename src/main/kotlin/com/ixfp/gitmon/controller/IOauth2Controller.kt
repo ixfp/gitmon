@@ -29,7 +29,7 @@ interface IOauth2Controller {
             ),
         ],
     )
-    fun redirectToGithubOauthUrl(): ResponseEntity<Unit>
+    fun redirectToGithubOauthUrl(profile: String?): ResponseEntity<Unit>
 
     @Operation(
         summary = "gitmon Access 토큰 발급",
@@ -60,5 +60,8 @@ interface IOauth2Controller {
             // TODO: 깃허브 API 에러로 인한 에러 응답 예제 추가
         ],
     )
-    fun login(request: GithubOauth2Request): com.ixfp.gitmon.common.type.ApiResponse<AccessTokenResponse>
+    fun login(
+        profile: String?,
+        request: GithubOauth2Request,
+    ): com.ixfp.gitmon.common.type.ApiResponse<AccessTokenResponse>
 }
