@@ -12,6 +12,7 @@ import java.util.UUID
 class PostingService(
     private val memberReader: MemberReader,
     private val githubApiService: GithubApiService,
+    private val postingWriter: PostingWriter,
 ) {
     fun create(
         member: Member,
@@ -35,7 +36,18 @@ class PostingService(
                 repo = member.repoName,
                 path = "$title.md",
             )
-        log.info { "PostingService#create end. contentSha=$githubContent.sha" }
+
+        postingWriter.write(
+            Posting(
+                title = title,
+                member = member,
+                githubFilePath = githubContent.path,
+                githubFileSha = githubContent.sha,
+                githubDownloadUrl = githubContent.download_url,
+            ),
+        )
+
+        log.info { "PostingService#create end. contentSha=${githubContent.sha}" }
     }
 
     private fun uploadImage(
