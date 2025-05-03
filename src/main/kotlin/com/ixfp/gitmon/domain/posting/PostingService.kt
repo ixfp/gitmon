@@ -12,7 +12,16 @@ import java.util.UUID
 class PostingService(
     private val memberReader: MemberReader,
     private val githubApiService: GithubApiService,
+    private val postingReader: PostingReader,
+    private val postingWriter: PostingWriter,
 ) {
+    fun findPostingListByMemberExposedId(memberExposedId: String): List<PostingReadDto> {
+        val member =
+            memberReader.findByExposedId(memberExposedId)
+                ?: throw IllegalArgumentException("존재하지 않는 회원입니다.")
+        return postingReader.findPostingListByMemberId(member.id)
+    }
+
     fun create(
         member: Member,
         title: String,
@@ -35,7 +44,18 @@ class PostingService(
                 repo = member.repoName,
                 path = "$title.md",
             )
-        log.info { "PostingService#create end. contentSha=$githubContent.sha" }
+
+        postingWriter.write(
+            PostingWriteDto(
+                title = title,
+                member = member,
+                githubFilePath = githubContent.path,
+                githubFileSha = githubContent.sha,
+                githubDownloadUrl = githubContent.download_url,
+            ),
+        )
+
+        log.info { "PostingService#create end. contentSha=${githubContent.sha}" }
     }
 
     private fun uploadImage(
