@@ -2,4 +2,6 @@ package com.ixfp.gitmon.db.posting
 
 import org.springframework.data.jpa.repository.JpaRepository
 
-interface PostingRepository : JpaRepository<PostingEntity, Long>
+interface PostingRepository : JpaRepository<PostingEntity, Long> {
+    fun findByRefMemberId(refMemberId: Long): List<PostingEntity>
+}

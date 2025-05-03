@@ -8,14 +8,14 @@ import org.springframework.stereotype.Component
 class PostingWriter(
     private val postingRepository: PostingRepository,
 ) {
-    fun write(posting: Posting) {
+    fun write(postingWriteDto: PostingWriteDto) {
         val entity =
             PostingEntity(
-                title = posting.title,
-                refMemberId = posting.member.id,
-                githubFilePath = posting.githubFilePath,
-                githubFileSha = posting.githubFileSha,
-                githubDownloadUrl = posting.githubDownloadUrl,
+                title = postingWriteDto.title,
+                refMemberId = postingWriteDto.member.id,
+                githubFilePath = postingWriteDto.githubFilePath,
+                githubFileSha = postingWriteDto.githubFileSha,
+                githubDownloadUrl = postingWriteDto.githubDownloadUrl,
             )
         postingRepository.save(entity)
     }
