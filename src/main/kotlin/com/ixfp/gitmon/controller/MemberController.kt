@@ -12,7 +12,6 @@ import com.ixfp.gitmon.domain.member.Member
 import com.ixfp.gitmon.domain.member.MemberService
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestAttribute
 import org.springframework.web.bind.annotation.RequestBody
@@ -27,9 +26,8 @@ class MemberController(
     private val authService: AuthService,
     private val memberService: MemberService,
 ) : IMemberController {
-    @GetMapping("/{exposedMemberId}")
+    @GetMapping
     override fun getMember(
-        @PathVariable exposedMemberId: String,
         @RequestAttribute(AUTHENTICATED_MEMBER) member: Member,
     ): ApiResponse<MemberInfoResponse> {
         return try {
@@ -40,7 +38,6 @@ class MemberController(
                     repoName = member.repoName,
                     isRepoCreated = member.repoName != null,
                 )
-
             ApiResponse.success(response)
         } catch (e: Exception) {
             log.error(e) { "Failed to get member: ${e.message}" }

@@ -46,10 +46,7 @@ interface IMemberController {
             ),
         ],
     )
-    fun getMember(
-        exposedMemberId: String,
-        member: Member,
-    ): com.ixfp.gitmon.common.type.ApiResponse<MemberInfoResponse>
+    fun getMember(member: Member): com.ixfp.gitmon.common.type.ApiResponse<MemberInfoResponse>
 
     @Operation(
         summary = "레포지토리 생성/갱신",
