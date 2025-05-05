@@ -4,6 +4,7 @@ import com.ixfp.gitmon.client.github.GithubResourceApiClient
 import com.ixfp.gitmon.client.github.request.GithubCreateRepositoryRequest
 import com.ixfp.gitmon.common.aop.WrapWith
 import com.ixfp.gitmon.domain.member.exception.MemberExceptionStrategy
+import com.ixfp.gitmon.domain.member.exception.MemberGithubAccessTokenNotFoundException
 import feign.FeignException
 import org.springframework.stereotype.Service
 
@@ -62,7 +63,9 @@ class MemberService(
         member: Member,
         repoName: String,
     ): Boolean {
-        val githubAccessToken = memberReader.findAccessTokenByMemberId(member.id) ?: throw Error("Github 엑세스 토큰 없음")
+        val githubAccessToken =
+            memberReader.findAccessTokenByMemberId(member.id)
+                ?: throw MemberGithubAccessTokenNotFoundException()
         return try {
             githubResourceApiClient.fetchRepository(
                 token = "token $githubAccessToken",
