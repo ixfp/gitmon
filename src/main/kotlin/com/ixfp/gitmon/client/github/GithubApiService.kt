@@ -1,6 +1,7 @@
 package com.ixfp.gitmon.client.github
 
 import com.ixfp.gitmon.client.github.exception.GithubApiExceptionStrategy
+import com.ixfp.gitmon.client.github.exception.GithubInvalidAuthCodeException
 import com.ixfp.gitmon.client.github.request.GithubAccessTokenRequest
 import com.ixfp.gitmon.client.github.request.GithubUpsertFileRequest
 import com.ixfp.gitmon.client.github.response.GithubContent
@@ -38,7 +39,6 @@ class GithubApiService(
         code: String,
         profile: Profile,
     ): String {
-        log.info { "GithubApiService#getAccessTokenByCode start. code=$code, profile=$profile" }
         val request =
             GithubAccessTokenRequest(
                 code = code,
@@ -47,9 +47,8 @@ class GithubApiService(
             )
 
         val response = githubOauth2ApiClient.fetchAccessToken(request)
-        log.info { "GithubApiService#getAccessTokenByCode end. response=$response" }
         if (response.accessToken == null) {
-            throw RuntimeException("Failed to get access token from github. response=$response")
+            throw GithubInvalidAuthCodeException("response=$response")
         }
         return response.accessToken
     }
