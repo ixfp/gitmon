@@ -12,7 +12,7 @@ import org.springframework.dao.DataAccessException as SpringDataAccessException
 class DbExceptionStrategy : ExceptionWrappingStrategy {
     override fun wrap(e: Throwable): AppException =
         when (e) {
-            is AppException -> e
+            is DbException -> e
             is DataAccessResourceFailureException,
             is SQLException,
             -> DbConnectionException(cause = e)

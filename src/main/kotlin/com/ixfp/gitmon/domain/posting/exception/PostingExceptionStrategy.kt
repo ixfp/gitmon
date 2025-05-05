@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 class PostingExceptionStrategy : ExceptionWrappingStrategy {
     override fun wrap(e: Throwable): AppException {
         return when (e) {
-            is AppException -> e
+            is PostingException -> e
             else -> PostingUnexpectedException(cause = e)
         }
     }

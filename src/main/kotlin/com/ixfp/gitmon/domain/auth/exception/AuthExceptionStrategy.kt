@@ -6,7 +6,7 @@ import com.ixfp.gitmon.common.exception.AppException
 class AuthExceptionStrategy : ExceptionWrappingStrategy {
     override fun wrap(e: Throwable): AppException {
         return when (e) {
-            is AppException -> e
+            is AuthException -> e
             else -> AuthUnexpectedException(cause = e)
         }
     }

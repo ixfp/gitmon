@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 class MemberExceptionStrategy : ExceptionWrappingStrategy {
     override fun wrap(e: Throwable): AppException {
         return when (e) {
-            is AppException -> e
+            is MemberException -> e
             else -> MemberUnexpectedException(cause = e)
         }
     }
