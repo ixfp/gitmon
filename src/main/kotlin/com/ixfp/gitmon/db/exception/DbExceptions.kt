@@ -1,11 +1,11 @@
 package com.ixfp.gitmon.db.exception
 
-import com.ixfp.gitmon.common.exception.AppException
+import com.ixfp.gitmon.common.exception.RepositoryException
 
 sealed class DbException(
     message: String,
     cause: Throwable? = null,
-) : AppException(message, cause)
+) : RepositoryException(message, cause)
 
 class DbConnectionException(
     message: String = "데이터베이스 연결에 실패했습니다.",
