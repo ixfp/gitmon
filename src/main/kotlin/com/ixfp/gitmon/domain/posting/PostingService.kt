@@ -1,13 +1,16 @@
 package com.ixfp.gitmon.domain.posting
 
 import com.ixfp.gitmon.client.github.GithubApiService
+import com.ixfp.gitmon.common.aop.WrapWith
 import com.ixfp.gitmon.domain.member.Member
 import com.ixfp.gitmon.domain.member.MemberReader
+import com.ixfp.gitmon.domain.posting.exception.PostingExceptionStrategy
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.util.UUID
 
+@WrapWith(PostingExceptionStrategy::class)
 @Service
 class PostingService(
     private val memberReader: MemberReader,

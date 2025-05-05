@@ -2,9 +2,12 @@ package com.ixfp.gitmon.domain.member
 
 import com.ixfp.gitmon.client.github.GithubResourceApiClient
 import com.ixfp.gitmon.client.github.request.GithubCreateRepositoryRequest
+import com.ixfp.gitmon.common.aop.WrapWith
+import com.ixfp.gitmon.domain.member.exception.MemberExceptionStrategy
 import feign.FeignException
 import org.springframework.stereotype.Service
 
+@WrapWith(MemberExceptionStrategy::class)
 @Service
 class MemberService(
     private val githubResourceApiClient: GithubResourceApiClient,
