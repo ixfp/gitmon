@@ -21,8 +21,12 @@ spring:
 oauth2:
   client:
     github:
-      id: ${OAUTH2_CLIENT_GITHUB_ID}
-      secret: ${OAUTH2_CLIENT_GITHUB_SECRET}
+      id: ${GITHUB_OAUTH2_CLIENT_ID_PROD}
+      secret: ${GITHUB_OAUTH2_CLIENT_SECRET_PROD}
+  client-dev:
+    github:
+      id: ${GITHUB_OAUTH2_CLIENT_ID_DEV}
+      secret: ${GITHUB_OAUTH2_CLIENT_SECRET_DEV}
 
 jwt:
   secret: ${JWT_SECRET}

@@ -6,6 +6,7 @@ import com.ixfp.gitmon.config.web.AUTHENTICATED_MEMBER
 import com.ixfp.gitmon.controller.request.CreateRepoRequest
 import com.ixfp.gitmon.controller.response.CheckRepoNameResponse
 import com.ixfp.gitmon.controller.response.GithubRepoUrlResponse
+import com.ixfp.gitmon.controller.response.MemberInfoResponse
 import com.ixfp.gitmon.domain.auth.AuthService
 import com.ixfp.gitmon.domain.member.Member
 import com.ixfp.gitmon.domain.member.MemberService
@@ -25,6 +26,31 @@ class MemberController(
     private val authService: AuthService,
     private val memberService: MemberService,
 ) : IMemberController {
+    @GetMapping
+    override fun getMember(
+        @RequestAttribute(AUTHENTICATED_MEMBER) member: Member,
+    ): ApiResponseBody<MemberInfoResponse> {
+        return try {
+            val response =
+                MemberInfoResponse(
+                    id = member.exposedId,
+                    githubUsername = member.githubUsername,
+                    repoName = member.repoName,
+                    isRepoCreated = member.repoName != null,
+                )
+            ApiResponseBody.success(response)
+        } catch (e: Exception) {
+            log.error(e) { "Failed to get member: ${e.message}" }
+            val errorType =
+                when (e) {
+                    is IllegalArgumentException -> ApiErrorType.BAD_REQUEST
+                    is AuthenticationException -> ApiErrorType.UNAUTHORIZED
+                    else -> ApiErrorType.INTERNAL_SERVER_ERROR
+                }
+            ApiResponseBody.error(errorType)
+        }
+    }
+
     @PostMapping("/repo")
     override fun upsertRepo(
         @RequestBody request: CreateRepoRequest,
