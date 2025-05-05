@@ -1,21 +1,17 @@
 package com.ixfp.gitmon.client.github
 
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.ixfp.gitmon.client.github.exception.GithubApiException
-import com.ixfp.gitmon.client.github.exception.GithubNetworkException
-import com.ixfp.gitmon.client.github.exception.GithubResponseParsingException
-import com.ixfp.gitmon.client.github.exception.GithubUnexpectedException
+import com.ixfp.gitmon.client.github.exception.GithubApiExceptionStrategy
 import com.ixfp.gitmon.client.github.request.GithubAccessTokenRequest
 import com.ixfp.gitmon.client.github.request.GithubUpsertFileRequest
 import com.ixfp.gitmon.client.github.response.GithubContent
 import com.ixfp.gitmon.client.github.response.GithubUserResponse
+import com.ixfp.gitmon.common.aop.WrapWith
 import com.ixfp.gitmon.common.type.Profile
 import com.ixfp.gitmon.common.util.Base64Encoder
 import com.ixfp.gitmon.common.util.BearerToken
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
-import java.io.IOException
 
 @Component
 class GithubApiService(
@@ -24,12 +20,12 @@ class GithubApiService(
     private val githubProdClient: GithubOauth2ClientProdProperties,
     private val githubDevClient: GithubOauth2ClientDevProperties,
 ) {
+    @WrapWith(GithubApiExceptionStrategy::class)
     fun getGithubUser(githubAccessToken: String): GithubUserResponse {
-        return runCatchingGithub {
-            githubResourceApiClient.fetchUser(BearerToken(githubAccessToken).format())
-        }
+        return githubResourceApiClient.fetchUser(BearerToken(githubAccessToken).format())
     }
 
+    @WrapWith(GithubApiExceptionStrategy::class)
     fun getAuthRedirectionUrl(profile: Profile): String {
         return when (profile) {
             Profile.PROD -> buildAuthRedirectionUrl(githubProdClient.id)
@@ -37,6 +33,7 @@ class GithubApiService(
         }
     }
 
+    @WrapWith(GithubApiExceptionStrategy::class)
     fun getAccessTokenByCode(
         code: String,
         profile: Profile,
@@ -49,16 +46,15 @@ class GithubApiService(
                 client_secret = githubClientSecret(profile),
             )
 
-        runCatchingGithub {
-            val response = githubOauth2ApiClient.fetchAccessToken(request)
-            log.info { "GithubApiService#getAccessTokenByCode end. response=$response" }
-            if (response.accessToken == null) {
-                throw RuntimeException("Failed to get access token from github. response=$response")
-            }
-            return response.accessToken
+        val response = githubOauth2ApiClient.fetchAccessToken(request)
+        log.info { "GithubApiService#getAccessTokenByCode end. response=$response" }
+        if (response.accessToken == null) {
+            throw RuntimeException("Failed to get access token from github. response=$response")
         }
+        return response.accessToken
     }
 
+    @WrapWith(GithubApiExceptionStrategy::class)
     fun upsertFile(
         githubAccessToken: String,
         content: MultipartFile,
@@ -73,31 +69,15 @@ class GithubApiService(
                 content = Base64Encoder.encodeBase64(content),
                 sha = "",
             )
-        return runCatchingGithub {
-            val response =
-                githubResourceApiClient.upsertFile(
-                    bearerToken = BearerToken(githubAccessToken).format(),
-                    owner = githubUsername,
-                    repo = repo,
-                    path = path,
-                    request = request,
-                )
-            response.content
-        }
-    }
-
-    private inline fun <T> runCatchingGithub(block: () -> T): T {
-        return try {
-            block()
-        } catch (ex: GithubApiException) {
-            throw ex
-        } catch (ex: IOException) {
-            throw GithubNetworkException(cause = ex)
-        } catch (ex: JsonProcessingException) {
-            throw GithubResponseParsingException(cause = ex)
-        } catch (ex: Exception) {
-            throw GithubUnexpectedException(cause = ex)
-        }
+        val response =
+            githubResourceApiClient.upsertFile(
+                bearerToken = BearerToken(githubAccessToken).format(),
+                owner = githubUsername,
+                repo = repo,
+                path = path,
+                request = request,
+            )
+        return response.content
     }
 
     private fun buildAuthRedirectionUrl(githubClientId: String): String {
