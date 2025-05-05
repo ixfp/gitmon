@@ -12,6 +12,11 @@ class MemberUnexpectedException(
     cause: Throwable? = null,
 ) : MemberException(message, cause)
 
+class MemberNotFoundException(
+    message: String = "해당 회원을 찾을 수 없습니다.",
+    cause: Throwable? = null,
+) : MemberException(message, cause)
+
 class MemberGithubAccessTokenNotFoundException(
     message: String = "해당 회원의 GitHub 액세스 토큰이 존재하지 않습니다.",
     cause: Throwable? = null,

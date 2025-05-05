@@ -5,6 +5,7 @@ import com.ixfp.gitmon.client.github.request.GithubCreateRepositoryRequest
 import com.ixfp.gitmon.common.aop.WrapWith
 import com.ixfp.gitmon.domain.member.exception.MemberExceptionStrategy
 import com.ixfp.gitmon.domain.member.exception.MemberGithubAccessTokenNotFoundException
+import com.ixfp.gitmon.domain.member.exception.MemberNotFoundException
 import org.springframework.stereotype.Service
 
 @WrapWith(MemberExceptionStrategy::class)
@@ -14,6 +15,16 @@ class MemberService(
     private val memberWriter: MemberWriter,
     private val memberReader: MemberReader,
 ) {
+    fun getMemberByExposedId(exposedId: String): Member {
+        return memberReader.findByExposedId(exposedId)
+            ?: throw MemberNotFoundException(message = "exposedId: $exposedId")
+    }
+
+    fun getGithubAccessTokenById(id: Long): String {
+        return memberReader.findAccessTokenByMemberId(id)
+            ?: throw MemberGithubAccessTokenNotFoundException(message = "memberId: $id")
+    }
+
     fun upsertRepo(
         member: Member,
         repoName: String,
@@ -62,9 +73,7 @@ class MemberService(
         member: Member,
         repoName: String,
     ): Boolean {
-        val githubAccessToken =
-            memberReader.findAccessTokenByMemberId(member.id)
-                ?: throw MemberGithubAccessTokenNotFoundException()
+        val githubAccessToken = getGithubAccessTokenById(member.id)
         return githubApiService.isRepositoryExist(
             token = "token $githubAccessToken",
             owner = member.githubUsername,

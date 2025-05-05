@@ -3,8 +3,10 @@ package com.ixfp.gitmon.domain.posting
 import com.ixfp.gitmon.client.github.GithubApiService
 import com.ixfp.gitmon.common.aop.WrapWith
 import com.ixfp.gitmon.domain.member.Member
-import com.ixfp.gitmon.domain.member.MemberReader
+import com.ixfp.gitmon.domain.member.MemberService
+import com.ixfp.gitmon.domain.posting.exception.InvalidImageExtensionException
 import com.ixfp.gitmon.domain.posting.exception.PostingExceptionStrategy
+import com.ixfp.gitmon.domain.posting.exception.PostingRepositoryNotFoundException
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
@@ -13,15 +15,13 @@ import java.util.UUID
 @WrapWith(PostingExceptionStrategy::class)
 @Service
 class PostingService(
-    private val memberReader: MemberReader,
+    private val memberService: MemberService,
     private val githubApiService: GithubApiService,
     private val postingReader: PostingReader,
     private val postingWriter: PostingWriter,
 ) {
     fun findPostingListByMemberExposedId(memberExposedId: String): List<PostingReadDto> {
-        val member =
-            memberReader.findByExposedId(memberExposedId)
-                ?: throw IllegalArgumentException("존재하지 않는 회원입니다.")
+        val member = memberService.getMemberByExposedId(memberExposedId)
         return postingReader.findPostingListByMemberId(member.id)
     }
 
@@ -31,12 +31,10 @@ class PostingService(
         content: MultipartFile,
     ) {
         log.info { "PostingService#create start. member=$member, title=$title, content.size=${content.size}" }
-        val githubAccessToken =
-            memberReader.findAccessTokenByMemberId(member.id)
-                ?: throw IllegalArgumentException("Github 엑세스 토큰이 없습니다.")
+        val githubAccessToken = memberService.getGithubAccessTokenById(member.id)
 
         if (member.repoName == null) {
-            throw IllegalArgumentException("포스팅 레포지토리가 없습니다.")
+            throw PostingRepositoryNotFoundException()
         }
 
         val githubContent =
@@ -65,15 +63,12 @@ class PostingService(
         member: Member,
         content: MultipartFile,
     ): String {
-        val githubAccessToken =
-            memberReader.findAccessTokenByMemberId(member.id)
-                ?: throw IllegalArgumentException("Github 엑세스 토큰이 없습니다.")
-
         if (member.repoName == null) {
-            throw IllegalArgumentException("포스팅 레포지토리가 없습니다.")
+            throw PostingRepositoryNotFoundException()
         }
 
-        val extension = resolveExtension(content) ?: throw IllegalArgumentException("파일의 확장자가 이미지가 아닙니다.")
+        val githubAccessToken = memberService.getGithubAccessTokenById(member.id)
+        val extension = resolveExtension(content) ?: throw InvalidImageExtensionException()
         val imageId = UUID.randomUUID().toString()
         val filename = "$imageId.$extension"
         val path = "images/$filename"
