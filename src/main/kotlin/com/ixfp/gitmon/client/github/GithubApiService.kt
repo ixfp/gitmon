@@ -14,6 +14,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
 
+@WrapWith(GithubApiExceptionStrategy::class)
 @Component
 class GithubApiService(
     private val githubOauth2ApiClient: GithubOauth2ApiClient,
@@ -21,12 +22,10 @@ class GithubApiService(
     private val githubProdClient: GithubOauth2ClientProdProperties,
     private val githubDevClient: GithubOauth2ClientDevProperties,
 ) {
-    @WrapWith(GithubApiExceptionStrategy::class)
     fun getGithubUser(githubAccessToken: String): GithubUserResponse {
         return githubResourceApiClient.fetchUser(BearerToken(githubAccessToken).format())
     }
 
-    @WrapWith(GithubApiExceptionStrategy::class)
     fun getAuthRedirectionUrl(profile: Profile): String {
         return when (profile) {
             Profile.PROD -> buildAuthRedirectionUrl(githubProdClient.id)
@@ -34,7 +33,6 @@ class GithubApiService(
         }
     }
 
-    @WrapWith(GithubApiExceptionStrategy::class)
     fun getAccessTokenByCode(
         code: String,
         profile: Profile,
@@ -53,7 +51,6 @@ class GithubApiService(
         return response.accessToken
     }
 
-    @WrapWith(GithubApiExceptionStrategy::class)
     fun upsertFile(
         githubAccessToken: String,
         content: MultipartFile,
