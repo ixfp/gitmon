@@ -1,7 +1,9 @@
 package com.ixfp.gitmon.controller
 
 import com.ixfp.gitmon.config.docs.ACCESS_TOKEN
+import com.ixfp.gitmon.controller.type.ApiResponseBody
 import com.ixfp.gitmon.domain.member.Member
+import com.ixfp.gitmon.domain.posting.PostingReadDto
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -9,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.http.ResponseEntity
 import org.springframework.web.multipart.MultipartFile
 
 @Tag(name = "Posting", description = "게시글(포스팅) 관련 API")
@@ -44,5 +47,7 @@ interface IPostingController {
         title: String,
         content: MultipartFile,
         member: Member,
-    ): com.ixfp.gitmon.common.type.ApiResponseBody<Unit>
+    ): ResponseEntity<ApiResponseBody<Unit>>
+
+    fun getPostingList(exposedMemberId: String): ResponseEntity<ApiResponseBody<List<PostingReadDto>>>
 }

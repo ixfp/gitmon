@@ -1,16 +1,17 @@
 package com.ixfp.gitmon.controller
 
-import com.ixfp.gitmon.common.type.ApiErrorType
-import com.ixfp.gitmon.common.type.ApiResponseBody
 import com.ixfp.gitmon.config.web.AUTHENTICATED_MEMBER
 import com.ixfp.gitmon.controller.request.CreateRepoRequest
 import com.ixfp.gitmon.controller.response.CheckRepoNameResponse
 import com.ixfp.gitmon.controller.response.GithubRepoUrlResponse
 import com.ixfp.gitmon.controller.response.MemberInfoResponse
+import com.ixfp.gitmon.controller.type.ApiResponseBody
+import com.ixfp.gitmon.controller.util.ApiResponseHelper
 import com.ixfp.gitmon.domain.auth.AuthService
 import com.ixfp.gitmon.domain.member.Member
 import com.ixfp.gitmon.domain.member.MemberService
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestAttribute
@@ -29,86 +30,52 @@ class MemberController(
     @GetMapping
     override fun getMember(
         @RequestAttribute(AUTHENTICATED_MEMBER) member: Member,
-    ): ApiResponseBody<MemberInfoResponse> {
-        return try {
-            val response =
-                MemberInfoResponse(
-                    id = member.exposedId,
-                    githubUsername = member.githubUsername,
-                    repoName = member.repoName,
-                    isRepoCreated = member.repoName != null,
-                )
-            ApiResponseBody.success(response)
-        } catch (e: Exception) {
-            log.error(e) { "Failed to get member: ${e.message}" }
-            val errorType =
-                when (e) {
-                    is IllegalArgumentException -> ApiErrorType.BAD_REQUEST
-                    is AuthenticationException -> ApiErrorType.UNAUTHORIZED
-                    else -> ApiErrorType.INTERNAL_SERVER_ERROR
-                }
-            ApiResponseBody.error(errorType)
-        }
+    ): ResponseEntity<ApiResponseBody<MemberInfoResponse>> {
+        val response =
+            MemberInfoResponse(
+                id = member.exposedId,
+                githubUsername = member.githubUsername,
+                repoName = member.repoName,
+                isRepoCreated = member.repoName != null,
+            )
+        return ApiResponseHelper.success(response)
     }
 
     @PostMapping("/repo")
     override fun upsertRepo(
         @RequestBody request: CreateRepoRequest,
         @RequestAttribute(AUTHENTICATED_MEMBER) member: Member,
-    ): ApiResponseBody<Unit> {
-        try {
-            val githubAccessToken =
-                authService.getGithubAccessToken(member.id)
-                    ?: throw AuthenticationException("사용자의 깃허브 토큰을 찾을 수 없음")
+    ): ResponseEntity<ApiResponseBody<Unit>> {
+        val githubAccessToken =
+            authService.getGithubAccessToken(member.id)
+                ?: throw AuthenticationException("사용자의 깃허브 토큰을 찾을 수 없음")
 
-            if (member.repoName == request.name) {
-                return ApiResponseBody.success()
-            }
-            memberService.upsertRepo(member, request.name, githubAccessToken)
-            return ApiResponseBody.success()
-        } catch (e: Exception) {
-            log.error(e) { "Failed to create repository: ${e.message}" }
-            val errorType =
-                when (e) {
-                    is IllegalArgumentException -> ApiErrorType.BAD_REQUEST
-                    is AuthenticationException -> ApiErrorType.UNAUTHORIZED
-                    else -> ApiErrorType.INTERNAL_SERVER_ERROR
-                }
-            return ApiResponseBody.error(errorType)
+        if (member.repoName == request.name) {
+            return ApiResponseHelper.success()
         }
+        memberService.upsertRepo(member, request.name, githubAccessToken)
+        return ApiResponseHelper.success()
     }
 
     @GetMapping("/repo/check")
     override fun checkRepoName(
         @RequestParam name: String,
         @RequestAttribute(AUTHENTICATED_MEMBER) member: Member,
-    ): ApiResponseBody<CheckRepoNameResponse> {
-        return try {
-            val isAvailable = memberService.isRepoNameAvailable(member, name)
-            ApiResponseBody.success(CheckRepoNameResponse(isAvailable))
-        } catch (e: Exception) {
-            log.error(e) { "Failed to check repository name: ${e.message}" }
-            val errorType =
-                when (e) {
-                    is IllegalArgumentException -> ApiErrorType.BAD_REQUEST
-                    is AuthenticationException -> ApiErrorType.UNAUTHORIZED
-                    else -> ApiErrorType.INTERNAL_SERVER_ERROR
-                }
-            ApiResponseBody.error(errorType)
-        }
+    ): ResponseEntity<ApiResponseBody<CheckRepoNameResponse>> {
+        val isAvailable = memberService.isRepoNameAvailable(member, name)
+        return ApiResponseHelper.success(CheckRepoNameResponse(isAvailable))
     }
 
     @GetMapping("/github/repo")
     override fun findGithubRepoUrl(
         @RequestParam githubUsername: String,
-    ): ApiResponseBody<GithubRepoUrlResponse> {
+    ): ResponseEntity<ApiResponseBody<GithubRepoUrlResponse>> {
         val githubRepoUrl =
             memberService.findGithubRepoUrl(githubUsername)
-                ?: return ApiResponseBody.success()
+                ?: return ApiResponseHelper.success()
 
         val response = GithubRepoUrlResponse(githubRepoUrl)
-
-        return ApiResponseBody.success(response)
+        return ApiResponseHelper.success(response)
     }
 
     companion object {

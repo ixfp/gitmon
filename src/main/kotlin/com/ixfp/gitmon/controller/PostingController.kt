@@ -1,13 +1,14 @@
 package com.ixfp.gitmon.controller
 
-import com.ixfp.gitmon.common.type.ApiErrorType
-import com.ixfp.gitmon.common.type.ApiResponseBody
 import com.ixfp.gitmon.config.web.AUTHENTICATED_MEMBER
+import com.ixfp.gitmon.controller.type.ApiResponseBody
+import com.ixfp.gitmon.controller.util.ApiResponseHelper
 import com.ixfp.gitmon.domain.member.Member
 import com.ixfp.gitmon.domain.posting.PostingReadDto
 import com.ixfp.gitmon.domain.posting.PostingService
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -30,37 +31,17 @@ class PostingController(
         @RequestParam title: String,
         @RequestPart content: MultipartFile,
         @RequestAttribute(AUTHENTICATED_MEMBER) member: Member,
-    ): ApiResponseBody<Unit> {
-        try {
-            postingService.create(member, title, content)
-            return ApiResponseBody.success()
-        } catch (e: Exception) {
-            val errorType =
-                when (e) {
-                    is IllegalArgumentException -> ApiErrorType.BAD_REQUEST
-                    else -> ApiErrorType.INTERNAL_SERVER_ERROR
-                }
-            log.error { "포스팅 생성 중 에러 발생: ${e.message}" }
-            return ApiResponseBody.error(errorType)
-        }
+    ): ResponseEntity<ApiResponseBody<Unit>> {
+        postingService.create(member, title, content)
+        return ApiResponseHelper.success()
     }
 
     @GetMapping("/{exposedMemberId}")
-    fun getPostingList(
+    override fun getPostingList(
         @PathVariable exposedMemberId: String,
-    ): ApiResponseBody<List<PostingReadDto>> {
-        try {
-            val postingList = postingService.findPostingListByMemberExposedId(exposedMemberId)
-            return ApiResponseBody.success(postingList)
-        } catch (e: Exception) {
-            val errorType =
-                when (e) {
-                    is IllegalArgumentException -> ApiErrorType.BAD_REQUEST
-                    else -> ApiErrorType.INTERNAL_SERVER_ERROR
-                }
-            log.error { "포스팅 목록 조회 중 에러 발생: ${e.message}" }
-            return ApiResponseBody.error(errorType)
-        }
+    ): ResponseEntity<ApiResponseBody<List<PostingReadDto>>> {
+        val postingList = postingService.findPostingListByMemberExposedId(exposedMemberId)
+        return ApiResponseHelper.success(postingList)
     }
 
     companion object {

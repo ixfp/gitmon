@@ -2,6 +2,7 @@ package com.ixfp.gitmon.controller
 
 import com.ixfp.gitmon.controller.request.GithubOauth2Request
 import com.ixfp.gitmon.controller.response.AccessTokenResponse
+import com.ixfp.gitmon.controller.type.ApiResponseBody
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
@@ -63,5 +64,5 @@ interface IOauth2Controller {
     fun login(
         profile: String?,
         request: GithubOauth2Request,
-    ): com.ixfp.gitmon.common.type.ApiResponseBody<AccessTokenResponse>
+    ): ResponseEntity<ApiResponseBody<AccessTokenResponse>>
 }
