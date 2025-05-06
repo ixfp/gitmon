@@ -1,16 +1,22 @@
 package com.ixfp.gitmon.client.github
 
+import com.ixfp.gitmon.client.github.exception.GithubApiExceptionStrategy
+import com.ixfp.gitmon.client.github.exception.GithubInvalidAuthCodeException
 import com.ixfp.gitmon.client.github.request.GithubAccessTokenRequest
+import com.ixfp.gitmon.client.github.request.GithubCreateRepositoryRequest
 import com.ixfp.gitmon.client.github.request.GithubUpsertFileRequest
 import com.ixfp.gitmon.client.github.response.GithubContent
 import com.ixfp.gitmon.client.github.response.GithubUserResponse
+import com.ixfp.gitmon.common.aop.WrapWith
 import com.ixfp.gitmon.common.type.Profile
 import com.ixfp.gitmon.common.util.Base64Encoder
 import com.ixfp.gitmon.common.util.BearerToken
+import feign.FeignException
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
 import org.springframework.stereotype.Component
 import org.springframework.web.multipart.MultipartFile
 
+@WrapWith(GithubApiExceptionStrategy::class)
 @Component
 class GithubApiService(
     private val githubOauth2ApiClient: GithubOauth2ApiClient,
@@ -33,17 +39,16 @@ class GithubApiService(
         code: String,
         profile: Profile,
     ): String {
-        log.info { "GithubApiService#getAccessTokenByCode start. code=$code, profile=$profile" }
         val request =
             GithubAccessTokenRequest(
                 code = code,
                 client_id = githubClientId(profile),
                 client_secret = githubClientSecret(profile),
             )
+
         val response = githubOauth2ApiClient.fetchAccessToken(request)
-        log.info { "GithubApiService#getAccessTokenByCode end. response=$response" }
         if (response.accessToken == null) {
-            throw RuntimeException("Failed to get access token from github. response=$response")
+            throw GithubInvalidAuthCodeException("response=$response")
         }
         return response.accessToken
     }
@@ -70,8 +75,34 @@ class GithubApiService(
                 path = path,
                 request = request,
             )
-
         return response.content
+    }
+
+    fun createRepository(
+        accessToken: String,
+        request: GithubCreateRepositoryRequest,
+    ) {
+        githubResourceApiClient.createRepository(
+            bearerToken = "Bearer $accessToken",
+            request = request,
+        )
+    }
+
+    fun isRepositoryExist(
+        token: String,
+        owner: String,
+        repo: String,
+    ): Boolean {
+        return try {
+            githubResourceApiClient.fetchRepository(
+                token = token,
+                owner = owner,
+                repo = repo,
+            )
+            true
+        } catch (e: FeignException.NotFound) {
+            false
+        }
     }
 
     private fun buildAuthRedirectionUrl(githubClientId: String): String {

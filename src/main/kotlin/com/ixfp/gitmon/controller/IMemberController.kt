@@ -5,6 +5,7 @@ import com.ixfp.gitmon.controller.request.CreateRepoRequest
 import com.ixfp.gitmon.controller.response.CheckRepoNameResponse
 import com.ixfp.gitmon.controller.response.GithubRepoUrlResponse
 import com.ixfp.gitmon.controller.response.MemberInfoResponse
+import com.ixfp.gitmon.controller.type.ApiResponseBody
 import com.ixfp.gitmon.domain.member.Member
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.http.ResponseEntity
 
 @Tag(name = "Member", description = "회원 관련 API")
 interface IMemberController {
@@ -23,6 +25,7 @@ interface IMemberController {
     @ApiResponses(
         value = [
             ApiResponse(
+                responseCode = "200",
                 content = [
                     Content(
                         mediaType = "application/json",
@@ -46,7 +49,7 @@ interface IMemberController {
             ),
         ],
     )
-    fun getMember(member: Member): com.ixfp.gitmon.common.type.ApiResponse<MemberInfoResponse>
+    fun getMember(member: Member): ResponseEntity<ApiResponseBody<MemberInfoResponse>>
 
     @Operation(
         summary = "레포지토리 생성/갱신",
@@ -56,19 +59,37 @@ interface IMemberController {
     @ApiResponses(
         value = [
             ApiResponse(
-                description = "레포 생성/갱신 성공",
+                responseCode = "201",
+                description = "레포 생성 성공",
                 content = [
                     Content(
                         mediaType = "application/json",
                         schema =
                             Schema(
-                                example =
-                                    """
-                                    {
-                                        "status": "SUCCESS",
-                                        "data": null
-                                    }
-                                    """,
+                                example = """
+                            {
+                                "status": "CREATED",
+                                "data": null
+                            }
+                        """,
+                            ),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "200",
+                description = "레포 갱신 성공",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema =
+                            Schema(
+                                example = """
+                            {
+                                "status": "SUCCESS",
+                                "data": null
+                            }
+                        """,
                             ),
                     ),
                 ],
@@ -78,7 +99,7 @@ interface IMemberController {
     fun upsertRepo(
         request: CreateRepoRequest,
         member: Member,
-    ): com.ixfp.gitmon.common.type.ApiResponse<Unit>
+    ): ResponseEntity<ApiResponseBody<Unit>>
 
     @Operation(
         summary = "레포지토리 이름 중복 조회",
@@ -112,7 +133,7 @@ interface IMemberController {
     fun checkRepoName(
         name: String,
         member: Member,
-    ): com.ixfp.gitmon.common.type.ApiResponse<CheckRepoNameResponse>
+    ): ResponseEntity<ApiResponseBody<CheckRepoNameResponse>>
 
     @Operation(summary = "레포지토리 URL 조회")
     @ApiResponses(
@@ -139,5 +160,5 @@ interface IMemberController {
             ),
         ],
     )
-    fun findGithubRepoUrl(githubUsername: String): com.ixfp.gitmon.common.type.ApiResponse<GithubRepoUrlResponse>
+    fun findGithubRepoUrl(githubUsername: String): ResponseEntity<ApiResponseBody<GithubRepoUrlResponse>>
 }

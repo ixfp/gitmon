@@ -1,7 +1,9 @@
 package com.ixfp.gitmon.controller
 
 import com.ixfp.gitmon.config.docs.ACCESS_TOKEN
+import com.ixfp.gitmon.controller.type.ApiResponseBody
 import com.ixfp.gitmon.domain.member.Member
+import com.ixfp.gitmon.domain.posting.PostingReadDto
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -9,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.multipart.MultipartFile
 
 @Tag(name = "Posting", description = "게시글(포스팅) 관련 API")
@@ -21,22 +25,67 @@ interface IPostingController {
     @ApiResponses(
         value = [
             ApiResponse(
+                responseCode = "201",
                 description = "포스팅 생성 성공",
                 content = [
                     Content(
                         mediaType = "application/json",
                         schema =
                             Schema(
-                                example =
-                                    """
+                                example = """
                                 {
-                                    "status": "SUCCESS",
+                                    "status": "CREATED",
                                     "data": null
                                 }
-                                """,
+                            """,
                             ),
                     ),
                 ],
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "허용되지 않은 이미지 확장자",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema =
+                            Schema(
+                                example = """
+                                {
+                                    "status": "BAD_REQUEST",
+                                    "errorMessage": "invalid image extension"
+                                }
+                            """,
+                            ),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "409",
+                description = "사용자의 레포지토리가 아직 설정되지 않음",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema =
+                            Schema(
+                                example = """
+                                {
+                                    "status": "CONFLICT",
+                                    "errorMessage": "repository not configured"
+                                }
+                            """,
+                            ),
+                    ),
+                ],
+            ),
+        ],
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "포스팅 생성 요청 (제목 + 파일)",
+        required = true,
+        content = [
+            Content(
+                mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
             ),
         ],
     )
@@ -44,5 +93,7 @@ interface IPostingController {
         title: String,
         content: MultipartFile,
         member: Member,
-    ): com.ixfp.gitmon.common.type.ApiResponse<Unit>
+    ): ResponseEntity<ApiResponseBody<Unit>>
+
+    fun getPostingList(exposedMemberId: String): ResponseEntity<ApiResponseBody<List<PostingReadDto>>>
 }

@@ -1,16 +1,30 @@
 package com.ixfp.gitmon.domain.member
 
-import com.ixfp.gitmon.client.github.GithubResourceApiClient
+import com.ixfp.gitmon.client.github.GithubApiService
 import com.ixfp.gitmon.client.github.request.GithubCreateRepositoryRequest
-import feign.FeignException
+import com.ixfp.gitmon.common.aop.WrapWith
+import com.ixfp.gitmon.domain.member.exception.MemberExceptionStrategy
+import com.ixfp.gitmon.domain.member.exception.MemberGithubAccessTokenNotFoundException
+import com.ixfp.gitmon.domain.member.exception.MemberNotFoundException
 import org.springframework.stereotype.Service
 
+@WrapWith(MemberExceptionStrategy::class)
 @Service
 class MemberService(
-    private val githubResourceApiClient: GithubResourceApiClient,
+    private val githubApiService: GithubApiService,
     private val memberWriter: MemberWriter,
     private val memberReader: MemberReader,
 ) {
+    fun getMemberByExposedId(exposedId: String): Member {
+        return memberReader.findByExposedId(exposedId)
+            ?: throw MemberNotFoundException(message = "exposedId: $exposedId")
+    }
+
+    fun getGithubAccessTokenById(id: Long): String {
+        return memberReader.findAccessTokenByMemberId(id)
+            ?: throw MemberGithubAccessTokenNotFoundException(message = "memberId: $id")
+    }
+
     fun upsertRepo(
         member: Member,
         repoName: String,
@@ -24,7 +38,7 @@ class MemberService(
                 private = false,
             )
         // TODO: DB 레포지토리 업데이트 오류 시 생성된 레포지토리를 지워야 함
-        githubResourceApiClient.createRepository("Bearer $githubAccessToken", githubRequest)
+        githubApiService.createRepository(githubAccessToken, githubRequest)
         memberWriter.upsertRepo(member, repoName)
     }
 
@@ -59,18 +73,11 @@ class MemberService(
         member: Member,
         repoName: String,
     ): Boolean {
-        val githubAccessToken = memberReader.findAccessTokenByMemberId(member.id) ?: throw Error("Github 엑세스 토큰 없음")
-        return try {
-            githubResourceApiClient.fetchRepository(
-                token = "token $githubAccessToken",
-                owner = member.githubUsername,
-                repo = repoName,
-            )
-            true
-        } catch (e: FeignException.NotFound) {
-            false
-        } catch (e: Exception) {
-            throw RuntimeException("GitHub API 요청 실패: ${e.message}")
-        }
+        val githubAccessToken = getGithubAccessTokenById(member.id)
+        return githubApiService.isRepositoryExist(
+            token = "token $githubAccessToken",
+            owner = member.githubUsername,
+            repo = repoName,
+        )
     }
 }

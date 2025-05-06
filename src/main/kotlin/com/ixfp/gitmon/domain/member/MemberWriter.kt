@@ -1,5 +1,7 @@
 package com.ixfp.gitmon.domain.member
 
+import com.ixfp.gitmon.common.aop.WrapWith
+import com.ixfp.gitmon.db.exception.DbExceptionStrategy
 import com.ixfp.gitmon.db.github.GithubAuthEntity
 import com.ixfp.gitmon.db.github.GithubAuthRepository
 import com.ixfp.gitmon.db.member.MemberEntity
@@ -7,6 +9,7 @@ import com.ixfp.gitmon.db.member.MemberRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Component
 
+@WrapWith(DbExceptionStrategy::class)
 @Component
 class MemberWriter(
     private val memberRepository: MemberRepository,
