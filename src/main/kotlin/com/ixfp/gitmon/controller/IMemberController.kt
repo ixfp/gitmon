@@ -25,6 +25,7 @@ interface IMemberController {
     @ApiResponses(
         value = [
             ApiResponse(
+                responseCode = "200",
                 content = [
                     Content(
                         mediaType = "application/json",
@@ -58,19 +59,37 @@ interface IMemberController {
     @ApiResponses(
         value = [
             ApiResponse(
-                description = "레포 생성/갱신 성공",
+                responseCode = "201",
+                description = "레포 생성 성공",
                 content = [
                     Content(
                         mediaType = "application/json",
                         schema =
                             Schema(
-                                example =
-                                    """
-                                    {
-                                        "status": "SUCCESS",
-                                        "data": null
-                                    }
-                                    """,
+                                example = """
+                            {
+                                "status": "CREATED",
+                                "data": null
+                            }
+                        """,
+                            ),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "200",
+                description = "레포 갱신 성공",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema =
+                            Schema(
+                                example = """
+                            {
+                                "status": "SUCCESS",
+                                "data": null
+                            }
+                        """,
                             ),
                     ),
                 ],

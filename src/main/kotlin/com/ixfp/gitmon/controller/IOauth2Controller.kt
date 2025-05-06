@@ -4,13 +4,13 @@ import com.ixfp.gitmon.controller.request.GithubOauth2Request
 import com.ixfp.gitmon.controller.response.AccessTokenResponse
 import com.ixfp.gitmon.controller.type.ApiResponseBody
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.media.ArraySchema
+import io.swagger.v3.oas.annotations.headers.Header
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.http.MediaType
+import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 
 @Tag(name = "OAuth Token Control", description = "OAuth 인증 관련 API")
@@ -20,11 +20,12 @@ interface IOauth2Controller {
         value = [
             ApiResponse(
                 responseCode = "301",
-                description = "Success",
-                content = [
-                    Content(
-                        mediaType = MediaType.APPLICATION_JSON_VALUE,
-                        array = ArraySchema(schema = Schema(implementation = String::class)),
+                description = "Redirect to GitHub OAuth page",
+                headers = [
+                    Header(
+                        name = HttpHeaders.LOCATION,
+                        description = "GitHub OAuth authorization URL",
+                        schema = Schema(type = "string", format = "uri"),
                     ),
                 ],
             ),
@@ -39,6 +40,7 @@ interface IOauth2Controller {
     @ApiResponses(
         value = [
             ApiResponse(
+                responseCode = "200",
                 description = "로그인 및 토큰 발급 성공",
                 content = [
                     Content(
@@ -58,7 +60,24 @@ interface IOauth2Controller {
                     ),
                 ],
             ),
-            // TODO: 깃허브 API 에러로 인한 에러 응답 예제 추가
+            ApiResponse(
+                responseCode = "401",
+                description = "유효하지 않은 GitHub 인증 코드",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema =
+                            Schema(
+                                example = """
+                            {
+                                "status": "UNAUTHORIZED",
+                                "errorMessage": "Invalid auth code"
+                            }
+                            """,
+                            ),
+                    ),
+                ],
+            ),
         ],
     )
     fun login(
