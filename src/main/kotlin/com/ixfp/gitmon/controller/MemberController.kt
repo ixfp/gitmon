@@ -54,7 +54,7 @@ class MemberController(
             return ApiResponseHelper.success()
         }
         memberService.upsertRepo(member, request.name, githubAccessToken)
-        return ApiResponseHelper.success()
+        return ApiResponseHelper.created()
     }
 
     @GetMapping("/repo/check")

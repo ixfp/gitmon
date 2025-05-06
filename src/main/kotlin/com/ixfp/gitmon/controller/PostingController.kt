@@ -33,7 +33,7 @@ class PostingController(
         @RequestAttribute(AUTHENTICATED_MEMBER) member: Member,
     ): ResponseEntity<ApiResponseBody<Unit>> {
         postingService.create(member, title, content)
-        return ApiResponseHelper.success()
+        return ApiResponseHelper.created()
     }
 
     @GetMapping("/{exposedMemberId}")
