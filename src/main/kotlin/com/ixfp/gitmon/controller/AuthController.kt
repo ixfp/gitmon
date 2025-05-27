@@ -48,7 +48,7 @@ class AuthController(
             .withCookie(
                 key = "refreshToken",
                 value = newRefreshToken,
-                maxAge = Duration.ofDays(30),
+                maxAge = Duration.ofDays(14),
                 path = "/api/v1/refresh",
                 httpOnly = true,
                 secure = true,

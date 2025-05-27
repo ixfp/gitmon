@@ -56,7 +56,7 @@ class Oauth2Controller(
         return ApiResponseHelper.success(response).withCookie(
             key = "refreshToken",
             value = refreshToken,
-            maxAge = Duration.ofDays(30),
+            maxAge = Duration.ofDays(14),
             path = "/api/v1/refresh",
             httpOnly = true,
             secure = true,
