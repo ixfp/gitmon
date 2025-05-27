@@ -1,7 +1,7 @@
 package com.ixfp.gitmon.controller
 
 import com.ixfp.gitmon.controller.request.GithubOauth2Request
-import com.ixfp.gitmon.controller.response.AccessTokenResponse
+import com.ixfp.gitmon.controller.response.LoginResponse
 import com.ixfp.gitmon.controller.type.ApiResponseBody
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.headers.Header
@@ -34,8 +34,8 @@ interface IOauth2Controller {
     fun redirectToGithubOauthUrl(profile: String?): ResponseEntity<Unit>
 
     @Operation(
-        summary = "gitmon Access 토큰 발급",
-        description = "Github OAuth 인증 코드를 받아 로그인 처리 후 gitmon의 Access Token을 발급 받음.",
+        summary = "gitmon Access, Refresh 토큰 발급",
+        description = "Github OAuth 인증 코드를 받아 로그인 처리 후 gitmon의 Access Token을 HTTP Body로 반환 및 Refresh Token 쿠키 설정",
     )
     @ApiResponses(
         value = [
@@ -56,6 +56,17 @@ interface IOauth2Controller {
                                         }
                                     }
                                     """,
+                            ),
+                    ),
+                ],
+                headers = [
+                    Header(
+                        name = "Set-Cookie",
+                        description = "Refresh token cookie",
+                        schema =
+                            Schema(
+                                type = "string",
+                                example = "refreshToken=<KEY>; HttpOnly; Path=/api/v1/refresh; Secure",
                             ),
                     ),
                 ],
@@ -83,5 +94,5 @@ interface IOauth2Controller {
     fun login(
         profile: String?,
         request: GithubOauth2Request,
-    ): ResponseEntity<ApiResponseBody<AccessTokenResponse>>
+    ): ResponseEntity<ApiResponseBody<LoginResponse>>
 }

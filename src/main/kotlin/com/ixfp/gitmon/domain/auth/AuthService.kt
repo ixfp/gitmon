@@ -46,6 +46,10 @@ class AuthService(
         return jwtUtil.createAccessToken(member.exposedId)
     }
 
+    fun createRefreshToken(member: Member): String {
+        return jwtUtil.createRefreshToken(member.exposedId)
+    }
+
     fun getGithubAccessToken(memberId: Long): String? {
         return memberReader.findAccessTokenByMemberId(memberId)
     }
