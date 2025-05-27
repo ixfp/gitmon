@@ -20,7 +20,20 @@ class JwtUtil(
                 ),
             )
             .issuedAt(Date())
-            .expiration(Date(System.currentTimeMillis() + TOKEN_EXPIRE_MILLISECONDS))
+            .expiration(Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRE_MILLISECONDS))
+            .signWith(key)
+            .compact()
+    }
+
+    fun createRefreshToken(memberExposedId: String): String {
+        return Jwts.builder()
+            .claims(
+                mapOf(
+                    "id" to memberExposedId,
+                ),
+            )
+            .issuedAt(Date())
+            .expiration(Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRE_MILLISECONDS))
             .signWith(key)
             .compact()
     }
@@ -41,7 +54,8 @@ class JwtUtil(
     }
 
     companion object {
-        private const val TOKEN_EXPIRE_MILLISECONDS = 1000 * 60 * 60 * 10 // 10시간
+        private const val ACCESS_TOKEN_EXPIRE_MILLISECONDS = 1000 * 60 * 60 // 1시간
+        private const val REFRESH_TOKEN_EXPIRE_MILLISECONDS = 1000 * 60 * 60 * 24 * 14 // 14일
     }
 }
 
