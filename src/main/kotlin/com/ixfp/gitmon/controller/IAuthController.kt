@@ -42,7 +42,7 @@ interface IAuthController {
                 headers = [
                     Header(
                         name = "Set-Cookie",
-                        description = "새로운 Refresh Token 쿠키(선택)",
+                        description = "새로운 Refresh Token 쿠키",
                         schema = Schema(type = "string"),
                     ),
                 ],
