@@ -20,6 +20,11 @@ class MemberService(
             ?: throw MemberNotFoundException(message = "exposedId: $exposedId")
     }
 
+    fun getMemberByGithubUsername(githubUsername: String): Member {
+        return memberReader.findByGithubUsername(githubUsername)
+            ?: throw MemberNotFoundException(message = "githubUsername: $githubUsername")
+    }
+
     fun getGithubAccessTokenById(id: Long): String {
         return memberReader.findAccessTokenByMemberId(id)
             ?: throw MemberGithubAccessTokenNotFoundException(message = "memberId: $id")
