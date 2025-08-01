@@ -44,6 +44,14 @@ class PostingController(
         return ApiResponseHelper.success(postingList)
     }
 
+    @GetMapping("/github/{githubUsername}")
+    override fun getPostingListByGithubUsername(
+        @PathVariable githubUsername: String,
+    ): ResponseEntity<ApiResponseBody<List<PostingReadDto>>> {
+        val postingList = postingService.findPostingListByGithubUsername(githubUsername)
+        return ApiResponseHelper.success(postingList)
+    }
+
     companion object {
         private val log = logger {}
     }

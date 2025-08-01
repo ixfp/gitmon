@@ -25,6 +25,16 @@ class PostingService(
         return postingReader.findPostingListByMemberId(member.id)
     }
 
+    fun findPostingListByGithubUsername(githubUsername: String): List<PostingReadDto> {
+        log.info { "[PostingService] 포스팅 목록 조회 시작. githubUsername=$githubUsername" }
+
+        val member = memberService.getMemberByGithubUsername(githubUsername)
+        val postingList = postingReader.findPostingListByMemberId(member.id)
+
+        log.info { "[PostingService] 포스팅 목록 조회 완료. githubUsername=${member.githubUsername}, postingList.size=${postingList.size}" }
+        return postingList
+    }
+
     fun create(
         member: Member,
         title: String,
