@@ -35,6 +35,15 @@ class PostingService(
         return postingList
     }
 
+    fun findPosting(postingId: Long): PostingReadDto? {
+        log.info { "[PostingService] 포스팅 조회 시작. postingId=$postingId" }
+
+        val posting = postingReader.findPostingById(postingId)
+
+        log.info { "[PostingService] 포스팅 조회 완료. posting=$posting" }
+        return posting
+    }
+
     fun findPosting(
         githubUsername: String,
         postingId: Long,
@@ -54,7 +63,7 @@ class PostingService(
         member: Member,
         title: String,
         content: MultipartFile,
-    ) {
+    ): Long {
         log.info { "PostingService#create start. member=$member, title=$title, content.size=${content.size}" }
         val githubAccessToken = memberService.getGithubAccessTokenById(member.id)
 
@@ -71,17 +80,19 @@ class PostingService(
                 path = "$title.md",
             )
 
-        postingWriter.write(
-            PostingWriteDto(
-                title = title,
-                member = member,
-                githubFilePath = githubContent.path,
-                githubFileSha = githubContent.sha,
-                githubDownloadUrl = githubContent.download_url,
-            ),
-        )
+        val savedPostingId =
+            postingWriter.write(
+                PostingWriteDto(
+                    title = title,
+                    member = member,
+                    githubFilePath = githubContent.path,
+                    githubFileSha = githubContent.sha,
+                    githubDownloadUrl = githubContent.download_url,
+                ),
+            )
 
-        log.info { "PostingService#create end. contentSha=${githubContent.sha}" }
+        log.info { "PostingService#create end. savedPostingId=$savedPostingId, contentSha=${githubContent.sha}" }
+        return savedPostingId
     }
 
     private fun uploadImage(

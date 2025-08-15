@@ -93,7 +93,7 @@ interface IPostingController {
         title: String,
         content: MultipartFile,
         member: Member,
-    ): ResponseEntity<ApiResponseBody<Unit>>
+    ): ResponseEntity<ApiResponseBody<PostingReadDto>>
 
     fun getPostingList(exposedMemberId: String): ResponseEntity<ApiResponseBody<List<PostingReadDto>>>
 

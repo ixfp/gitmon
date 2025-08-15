@@ -31,9 +31,10 @@ class PostingController(
         @RequestParam title: String,
         @RequestPart content: MultipartFile,
         @RequestAttribute(AUTHENTICATED_MEMBER) member: Member,
-    ): ResponseEntity<ApiResponseBody<Unit>> {
-        postingService.create(member, title, content)
-        return ApiResponseHelper.created()
+    ): ResponseEntity<ApiResponseBody<PostingReadDto>> {
+        val savedPostingId = postingService.create(member, title, content)
+        val posting = postingService.findPosting(savedPostingId)
+        return ApiResponseHelper.created(posting)
     }
 
     @GetMapping("/{exposedMemberId}")
