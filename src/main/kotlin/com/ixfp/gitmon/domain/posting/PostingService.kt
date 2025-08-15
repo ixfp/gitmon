@@ -35,6 +35,21 @@ class PostingService(
         return postingList
     }
 
+    fun findPosting(
+        githubUsername: String,
+        postingId: Long,
+    ): PostingReadDto? {
+        log.info { "[PostingService] 포스팅 조회 시작. githubUsername=$githubUsername, postingId=$postingId" }
+
+        val member = memberService.getMemberByGithubUsername(githubUsername)
+        val posting =
+            postingReader.findPostingListByMemberId(member.id)
+                .find { it.id == postingId }
+
+        log.info { "[PostingService] 포스팅 조회 완료. githubUsername=${member.githubUsername}, posting=$posting" }
+        return posting
+    }
+
     fun create(
         member: Member,
         title: String,

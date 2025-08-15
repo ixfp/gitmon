@@ -15,6 +15,12 @@ class PostingReader(
         return postingRepository.findByRefMemberId(memberId).map { toPostingItem(it) }
     }
 
+    fun findPostingById(postingId: Long): PostingReadDto {
+        return postingRepository.findById(postingId)
+            .orElseThrow { IllegalArgumentException("Posting with id $postingId not found") }
+            .let { toPostingItem(it) }
+    }
+
     private fun toPostingItem(entity: PostingEntity): PostingReadDto {
         return PostingReadDto(
             id = entity.id,

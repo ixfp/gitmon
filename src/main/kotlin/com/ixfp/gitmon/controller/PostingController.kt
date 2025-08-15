@@ -52,6 +52,15 @@ class PostingController(
         return ApiResponseHelper.success(postingList)
     }
 
+    @GetMapping("/github/{githubUsername}/{postingId}")
+    override fun getPosting(
+        @PathVariable githubUsername: String,
+        @PathVariable postingId: Long,
+    ): ResponseEntity<ApiResponseBody<PostingReadDto>> {
+        val posting = postingService.findPosting(githubUsername, postingId)
+        return ApiResponseHelper.success(posting)
+    }
+
     companion object {
         private val log = logger {}
     }

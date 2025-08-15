@@ -98,4 +98,9 @@ interface IPostingController {
     fun getPostingList(exposedMemberId: String): ResponseEntity<ApiResponseBody<List<PostingReadDto>>>
 
     fun getPostingListByGithubUsername(githubUsername: String): ResponseEntity<ApiResponseBody<List<PostingReadDto>>>
+
+    fun getPosting(
+        githubUsername: String,
+        postingId: Long,
+    ): ResponseEntity<ApiResponseBody<PostingReadDto>>
 }
