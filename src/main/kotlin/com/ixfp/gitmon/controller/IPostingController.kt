@@ -103,4 +103,11 @@ interface IPostingController {
         githubUsername: String,
         postingId: Long,
     ): ResponseEntity<ApiResponseBody<PostingReadDto>>
+
+    fun updatePosting(
+        id: Long,
+        title: String,
+        content: MultipartFile,
+        member: Member,
+    ): ResponseEntity<ApiResponseBody<PostingReadDto>>
 }

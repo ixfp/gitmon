@@ -5,6 +5,7 @@ import com.ixfp.gitmon.common.aop.WrapWith
 import com.ixfp.gitmon.domain.member.Member
 import com.ixfp.gitmon.domain.member.MemberService
 import com.ixfp.gitmon.domain.posting.exception.InvalidImageExtensionException
+import com.ixfp.gitmon.domain.posting.exception.PostingAuthorizationException
 import com.ixfp.gitmon.domain.posting.exception.PostingExceptionStrategy
 import com.ixfp.gitmon.domain.posting.exception.PostingRepositoryNotFoundException
 import io.github.oshai.kotlinlogging.KotlinLogging.logger
@@ -23,6 +24,7 @@ class PostingService(
     fun findPostingListByMemberExposedId(memberExposedId: String): List<PostingReadDto> {
         val member = memberService.getMemberByExposedId(memberExposedId)
         return postingReader.findPostingListByMemberId(member.id)
+            .map { toPostingReadDto(it) }
     }
 
     fun findPostingListByGithubUsername(githubUsername: String): List<PostingReadDto> {
@@ -32,16 +34,16 @@ class PostingService(
         val postingList = postingReader.findPostingListByMemberId(member.id)
 
         log.info { "[PostingService] 포스팅 목록 조회 완료. githubUsername=${member.githubUsername}, postingList.size=${postingList.size}" }
-        return postingList
+        return postingList.map { toPostingReadDto(it) }
     }
 
-    fun findPosting(postingId: Long): PostingReadDto? {
+    fun findPosting(postingId: Long): PostingReadDto {
         log.info { "[PostingService] 포스팅 조회 시작. postingId=$postingId" }
 
         val posting = postingReader.findPostingById(postingId)
 
         log.info { "[PostingService] 포스팅 조회 완료. posting=$posting" }
-        return posting
+        return toPostingReadDto(posting)
     }
 
     fun findPosting(
@@ -56,7 +58,7 @@ class PostingService(
                 .find { it.id == postingId }
 
         log.info { "[PostingService] 포스팅 조회 완료. githubUsername=${member.githubUsername}, posting=$posting" }
-        return posting
+        return posting?.let { toPostingReadDto(it) }
     }
 
     fun create(
@@ -94,6 +96,48 @@ class PostingService(
 
         log.info { "PostingService#create end. savedPostingId=$savedPostingId, contentSha=${githubContent.sha}" }
         return savedPostingId
+    }
+
+    fun update(
+        member: Member,
+        postingId: Long,
+        title: String,
+        content: MultipartFile,
+    ): Long {
+        log.info { "PostingService#update start. member=$member, postingId=$postingId, title=$title, content.size=${content.size}" }
+        val posting = postingReader.findPostingById(postingId)
+
+        if (posting.refMemberId != member.id) {
+            log.warn { "본인이 작성하지 않은 포스팅에 대한 수정 시도. memberId=${member.id}, postingId=$postingId" }
+            throw PostingAuthorizationException()
+        }
+
+        val githubAccessToken = memberService.getGithubAccessTokenById(member.id)
+
+        val githubContent =
+            githubApiService.upsertFile(
+                githubAccessToken = githubAccessToken,
+                content = content,
+                githubUsername = member.githubUsername,
+                repo = member.repoName ?: throw PostingRepositoryNotFoundException(),
+                path = "$title.md",
+                commitMessage = CommitMessageGenerator.updateMessage(title = title),
+                sha = posting.githubFileSha,
+            )
+
+        val updatedPostingId =
+            postingWriter.update(
+                postingId,
+                PostingUpdateDto(
+                    title = title,
+                    githubFilePath = githubContent.path,
+                    githubFileSha = githubContent.sha,
+                    githubDownloadUrl = githubContent.download_url,
+                ),
+            )
+
+        log.info { "PostingService#update end. updatedPostingId=$updatedPostingId, contentSha=${githubContent.sha}" }
+        return updatedPostingId
     }
 
     private fun uploadImage(
@@ -136,6 +180,16 @@ class PostingService(
             return extension
         }
         return null
+    }
+
+    private fun toPostingReadDto(posting: Posting): PostingReadDto {
+        return PostingReadDto(
+            id = posting.id,
+            title = posting.title,
+            githubDownloadUrl = posting.githubDownloadUrl,
+            createdAt = posting.createdAt,
+            updatedAt = posting.updatedAt,
+        )
     }
 
     companion object {

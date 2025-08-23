@@ -13,9 +13,9 @@ class PostingEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-    val title: String,
+    var title: String,
     val refMemberId: Long,
-    val githubFilePath: String,
-    val githubFileSha: String,
-    val githubDownloadUrl: String,
+    var githubFilePath: String,
+    var githubFileSha: String,
+    var githubDownloadUrl: String,
 ) : BaseEntity()

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestAttribute
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -35,6 +36,20 @@ class PostingController(
         val savedPostingId = postingService.create(member, title, content)
         val posting = postingService.findPosting(savedPostingId)
         return ApiResponseHelper.created(posting)
+    }
+
+    @PutMapping(
+        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
+    )
+    override fun updatePosting(
+        @RequestParam id: Long,
+        @RequestParam title: String,
+        @RequestPart content: MultipartFile,
+        @RequestAttribute(AUTHENTICATED_MEMBER) member: Member,
+    ): ResponseEntity<ApiResponseBody<PostingReadDto>> {
+        val updatedPosting = postingService.update(member, id, title, content)
+        val posting = postingService.findPosting(updatedPosting)
+        return ApiResponseHelper.success(posting)
     }
 
     @GetMapping("/{exposedMemberId}")

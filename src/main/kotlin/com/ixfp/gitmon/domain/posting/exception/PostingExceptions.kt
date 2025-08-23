@@ -17,6 +17,11 @@ class InvalidImageExtensionException(
     cause: Throwable? = null,
 ) : PostingException(message, cause)
 
+class PostingAuthorizationException(
+    message: String = "게시글에 대한 권한이 없습니다.",
+    cause: Throwable? = null,
+) : PostingException(message, cause)
+
 class PostingUnexpectedException(
     message: String = "예상치 못한 게시글 도메인 예외가 발생했습니다.",
     cause: Throwable? = null,
