@@ -78,6 +78,7 @@ class PostingService(
                 githubUsername = member.githubUsername,
                 repo = member.repoName,
                 path = "$title.md",
+                commitMessage = CommitMessageGenerator.createMessage(title = title),
             )
 
         val savedPostingId =
@@ -116,6 +117,7 @@ class PostingService(
                 githubUsername = member.githubUsername,
                 repo = member.repoName,
                 path = path,
+                commitMessage = CommitMessageGenerator.imageUploadMessage(),
             )
 
         return githubContent.download_url
