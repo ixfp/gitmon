@@ -4,6 +4,7 @@ import com.ixfp.gitmon.common.aop.WrapWith
 import com.ixfp.gitmon.db.exception.DbExceptionStrategy
 import com.ixfp.gitmon.db.posting.PostingEntity
 import com.ixfp.gitmon.db.posting.PostingRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
 @WrapWith(DbExceptionStrategy::class)
@@ -23,5 +24,23 @@ class PostingWriter(
         val saved = postingRepository.save(entity)
 
         return saved.id
+    }
+
+    fun update(
+        postingId: Long,
+        postingUpdateDto: PostingUpdateDto,
+    ): Long {
+        val postingEntity =
+            postingRepository.findByIdOrNull(postingId)
+                ?: throw IllegalArgumentException("Posting with id $postingId not found")
+
+        postingEntity.title = postingUpdateDto.title
+        postingEntity.githubFilePath = postingUpdateDto.githubFilePath
+        postingEntity.githubFileSha = postingUpdateDto.githubFileSha
+        postingEntity.githubDownloadUrl = postingUpdateDto.githubDownloadUrl
+
+        val updated = postingRepository.save(postingEntity)
+
+        return updated.id
     }
 }

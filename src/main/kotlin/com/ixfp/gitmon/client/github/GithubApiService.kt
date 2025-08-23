@@ -59,13 +59,14 @@ class GithubApiService(
         githubUsername: String,
         repo: String,
         path: String,
-        commitMessage: String = "Upsert File by API",
+        commitMessage: String,
+        sha: String = "",
     ): GithubContent {
         val request =
             GithubUpsertFileRequest(
-                message = "Add New File",
+                message = commitMessage,
                 content = Base64Encoder.encodeBase64(content),
-                sha = "",
+                sha = sha,
             )
         val response =
             githubResourceApiClient.upsertFile(

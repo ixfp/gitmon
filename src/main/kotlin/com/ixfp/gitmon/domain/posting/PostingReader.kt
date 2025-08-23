@@ -11,20 +11,23 @@ import org.springframework.stereotype.Component
 class PostingReader(
     private val postingRepository: PostingRepository,
 ) {
-    fun findPostingListByMemberId(memberId: Long): List<PostingReadDto> {
-        return postingRepository.findByRefMemberId(memberId).map { toPostingItem(it) }
+    fun findPostingListByMemberId(memberId: Long): List<Posting> {
+        return postingRepository.findByRefMemberId(memberId).map { toPosting(it) }
     }
 
-    fun findPostingById(postingId: Long): PostingReadDto {
+    fun findPostingById(postingId: Long): Posting {
         return postingRepository.findById(postingId)
             .orElseThrow { IllegalArgumentException("Posting with id $postingId not found") }
-            .let { toPostingItem(it) }
+            .let { toPosting(it) }
     }
 
-    private fun toPostingItem(entity: PostingEntity): PostingReadDto {
-        return PostingReadDto(
+    private fun toPosting(entity: PostingEntity): Posting {
+        return Posting(
             id = entity.id,
             title = entity.title,
+            refMemberId = entity.refMemberId,
+            githubFilePath = entity.githubFilePath,
+            githubFileSha = entity.githubFileSha,
             githubDownloadUrl = entity.githubDownloadUrl,
             createdAt = entity.createdAt,
             updatedAt = entity.updatedAt,
