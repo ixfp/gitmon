@@ -140,7 +140,7 @@ class PostingService(
         return updatedPostingId
     }
 
-    private fun uploadImage(
+    fun uploadImage(
         member: Member,
         content: MultipartFile,
     ): String {

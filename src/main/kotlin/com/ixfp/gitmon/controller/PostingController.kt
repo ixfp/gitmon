@@ -77,6 +77,18 @@ class PostingController(
         return ApiResponseHelper.success(posting)
     }
 
+    @PostMapping(
+        "/images",
+        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
+    )
+    override fun uploadImage(
+        @RequestPart image: MultipartFile,
+        @RequestAttribute(AUTHENTICATED_MEMBER) member: Member,
+    ): ResponseEntity<ApiResponseBody<String>> {
+        val imageUrl = postingService.uploadImage(member, image)
+        return ApiResponseHelper.created(imageUrl)
+    }
+
     companion object {
         private val log = logger {}
     }

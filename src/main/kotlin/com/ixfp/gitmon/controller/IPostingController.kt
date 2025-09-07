@@ -110,4 +110,81 @@ interface IPostingController {
         content: MultipartFile,
         member: Member,
     ): ResponseEntity<ApiResponseBody<PostingReadDto>>
+
+    @Operation(
+        summary = "이미지 업로드",
+        description = "포스팅에 사용할 이미지를 업로드합니다.",
+        security = [SecurityRequirement(name = ACCESS_TOKEN)],
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "201",
+                description = "이미지 업로드 성공",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema =
+                            Schema(
+                                example = """
+                                {
+                                    "status": "CREATED",
+                                    "data": "https://raw.githubusercontent.com/user/repo/main/images/uuid.jpg"
+                                }
+                            """,
+                            ),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "허용되지 않은 이미지 확장자",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema =
+                            Schema(
+                                example = """
+                                {
+                                    "status": "BAD_REQUEST",
+                                    "errorMessage": "invalid image extension"
+                                }
+                            """,
+                            ),
+                    ),
+                ],
+            ),
+            ApiResponse(
+                responseCode = "409",
+                description = "사용자의 레포지토리가 아직 설정되지 않음",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema =
+                            Schema(
+                                example = """
+                                {
+                                    "status": "CONFLICT",
+                                    "errorMessage": "repository not configured"
+                                }
+                            """,
+                            ),
+                    ),
+                ],
+            ),
+        ],
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        description = "업로드할 이미지 파일",
+        required = true,
+        content = [
+            Content(
+                mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+            ),
+        ],
+    )
+    fun uploadImage(
+        image: MultipartFile,
+        member: Member,
+    ): ResponseEntity<ApiResponseBody<String>>
 }

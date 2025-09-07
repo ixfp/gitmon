@@ -14,6 +14,7 @@ class WebMvcConfig(
             .addPathPatterns("/api/v1/member/repo/**") // 인증이 필요한 경로
             .addPathPatterns("/api/v1/member", "/api/v1/member/")
             .addPathPatterns("/api/v1/posting", "/api/v1/posting/")
+            .addPathPatterns("/api/v1/posting/images", "/api/v1/posting/images/")
     }
 
     override fun addCorsMappings(registry: CorsRegistry) {
