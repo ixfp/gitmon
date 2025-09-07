@@ -1,6 +1,10 @@
 spring:
   application:
     name: gitmon
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   datasource:
     url: ${DATABASE_URL}
     username: ${DATABASE_USERNAME}
